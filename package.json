@@ -1,0 +1,20 @@
+{
+  "name": "fb-api-clone",
+  "version": "0.0.1",
+  "description": "Web-based Technology - Mini Project 20201",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SE-GoPro/fb-api-clone.git"
+  },
+  "author": "duypv98, namdaoduy, SpQuyt, Khikuroba",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/SE-GoPro/fb-api-clone/issues"
+  },
+  "homepage": "https://github.com/SE-GoPro/fb-api-clone#readme"
+}
