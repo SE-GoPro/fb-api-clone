@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./src/"
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
