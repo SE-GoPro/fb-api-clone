@@ -10,7 +10,7 @@
     "start": "nodemon --exec babel-node src/index.js",
     "start:local": "API_NODE_ENV=local npm start",
     "start:dev": "API_NODE_ENV=dev npm start",
-    "start:prod": "API_NODE_ENV=dev npm prod"
+    "start:prod": "API_NODE_ENV=prod npm start"
   },
   "repository": {
     "type": "git",

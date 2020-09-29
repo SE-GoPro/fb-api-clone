@@ -1,11 +1,6 @@
 const fs = require('fs');
 
-const API_NODE_ENV = process.env.API_NODE_ENV;
-if (!API_NODE_ENV) {
-  throw new Error(
-    'The API_NODE_ENV environment variable is required but was not specified.'
-  );
-}
+const API_NODE_ENV = process.env.API_NODE_ENV || 'local';
 
 // https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 const dotenvFiles = [
