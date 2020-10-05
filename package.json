@@ -10,7 +10,9 @@
     "start": "nodemon --exec babel-node src/index.js",
     "start:local": "cross-env API_NODE_ENV=local npm start",
     "start:dev": "cross-env API_NODE_ENV=dev npm start",
-    "start:prod": "cross-env API_NODE_ENV=prod npm start"
+    "start:prod": "cross-env API_NODE_ENV=prod npm start",
+    "lint": "node ./scripts/lint.js",
+    "fix": "cross-env FIX=1 node ./scripts/lint.js"
   },
   "repository": {
     "type": "git",
@@ -38,9 +40,18 @@
     "@babel/plugin-transform-runtime": "^7.11.5",
     "@babel/preset-env": "^7.11.5",
     "@babel/register": "^7.11.5",
+    "babel-eslint": "^10.1.0",
     "babel-plugin-module-resolver": "^4.0.0",
+    "chalk": "^4.1.0",
     "cross-env": "^7.0.2",
+    "eslint": "^7.10.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.1",
     "nodemon": "^2.0.4",
+    "pre-commit": "^1.2.2",
     "sequelize-cli": "^6.2.0"
-  }
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }
