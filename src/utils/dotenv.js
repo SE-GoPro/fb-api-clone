@@ -19,14 +19,12 @@ const config = () => {
       require('dotenv-expand')(
         require('dotenv').config({
           path: dotenvFile,
-        })
+        }),
       );
     }
   });
-}
-
+};
 
 export default {
   config,
 };
-
