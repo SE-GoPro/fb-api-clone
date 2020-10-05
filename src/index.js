@@ -10,9 +10,9 @@ const app = express();
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.send("Welcome to Node Babel")
+  res.send('Welcome to Node Babel');
 });
 
-app.listen(configs.apiPort,() => {
+app.listen(configs.apiPort, () => {
   console.log(`API is running on ${configs.apiPort}`);
-})
+});

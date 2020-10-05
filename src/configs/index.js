@@ -10,4 +10,4 @@ if (process.env.API_NODE_ENV === 'prod') {
   configs = devConfigs;
 }
 
-export default Object.assign({}, configs);
+export default Object.freeze(configs);
