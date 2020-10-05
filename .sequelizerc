@@ -3,5 +3,6 @@ const path = require('path');
 module.exports = {
   'config': path.resolve(__dirname, 'sequelize.config.js'),
   'migrations-path': path.resolve(__dirname, 'migrations'),
+  'models-path': path.resolve('src', 'models'),
   'env': process.env.API_NODE_ENV || 'local'
 };
