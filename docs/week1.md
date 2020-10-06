@@ -24,7 +24,7 @@
     "code": ""1000"",
     "message": "OK",
     "data": {
-      "verify_code": "XXXXXX" // 6 alphanumeric characters, OTP (?)
+      "verify_code": "<6 alphanumeric characters, OTP (?)>"
     }
   }
   ```
@@ -91,10 +91,10 @@
     "code": "1000",
     "message": "OK",
     "data": {
-      "id": "", // User's ID
-      "username": "", // Username
-      "token": "" // JWT Token
-      "avatar": "" // Avatar URL, can be null
+      "id": "<user's ID>",
+      "username": "Username",
+      "token": "JWT Token",
+      "avatar": "Avatar URL, can be null"
     }
   }
   ```
