@@ -10,18 +10,18 @@ export function up(queryInterface, Sequelize) {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    email: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
+    email: Sequelize.STRING,
     password: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: false,
     },
-    phone_number: Sequelize.STRING,
+    phone_number: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     avatar_url: Sequelize.STRING,
   });
 }
-export function down(queryInterface, Sequelize) {
+export function down(queryInterface) {
   return queryInterface.dropTable('users');
 }
