@@ -12,7 +12,8 @@
     "start:dev": "cross-env API_NODE_ENV=dev npm start",
     "start:prod": "cross-env API_NODE_ENV=prod npm start",
     "lint": "node ./scripts/lint.js",
-    "fix": "cross-env FIX=1 node ./scripts/lint.js"
+    "fix": "cross-env FIX=1 node ./scripts/lint.js",
+    "test": "cross-env API_NODE_ENV=local nodemon --exec babel-node src/utils/commonUtils.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   },
   "homepage": "https://github.com/SE-GoPro/fb-api-clone#readme",
   "dependencies": {
+    "bcrypt": "5.0.0",
     "body-parser": "1.19.0",
     "cors": "2.8.5",
     "dotenv": "8.2.0",

@@ -9,22 +9,21 @@ export function handleAPIError(err, req, res, next) {
       res.status(status).json({
         code, message, data,
       });
+    } else {
+      res.status(500).json({
+        code: '500',
+        message: 'Internal Server Error',
+      });
+      console.log(err.message);
     }
-  } else {
-    res.status(500).json({
-      code: '500',
-      message: 'Internal Server Error',
-    });
-    console.log(err.message);
   }
-
   return next(err);
 }
 
 export function handleNotFoundError(req, res, next) {
   res.status(404).json({
     code: '400',
-    message: `Endpoint ${req.url} Not Found`,
+    message: `Endpoint ${req.method} ${req.url} Not Found`,
   });
 
   return next();
