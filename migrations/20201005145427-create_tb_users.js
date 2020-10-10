@@ -15,7 +15,7 @@ export function up(queryInterface, Sequelize) {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    phone_number: {
+    phonenumber: {
       type: Sequelize.STRING,
       allowNull: false,
     },

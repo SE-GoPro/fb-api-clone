@@ -2,7 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'utils/dotenv';
 import configs from 'configs';
-import { handleAPIError, handleNotFoundError } from 'middlewares/handleError';
+import { handleAPIError, handleNotFoundError } from 'middlewares/handleErrors';
+import routes from 'routes/index';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to Node Babel');
 });
 
+app.use('/', routes);
 app.use(handleAPIError);
 app.use(handleNotFoundError);
 

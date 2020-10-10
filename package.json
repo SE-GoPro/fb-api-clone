@@ -12,8 +12,7 @@
     "start:dev": "cross-env API_NODE_ENV=dev npm start",
     "start:prod": "cross-env API_NODE_ENV=prod npm start",
     "lint": "node ./scripts/lint.js",
-    "fix": "cross-env FIX=1 node ./scripts/lint.js",
-    "test": "cross-env API_NODE_ENV=local nodemon --exec babel-node src/utils/commonUtils.js"
+    "fix": "cross-env FIX=1 node ./scripts/lint.js"
   },
   "repository": {
     "type": "git",
