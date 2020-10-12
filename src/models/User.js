@@ -17,7 +17,7 @@ const User = sequelize.define('User', {
     validate: {
       is: {
         args: new RegExp(/^[0][0-9]{9}$/g),
-        msg: 'Phone number must be 10 in length and start with 0',
+        msg: 'Phonenumber must be 10 in length, contain only numeric characters and start with 0',
       },
     },
   },

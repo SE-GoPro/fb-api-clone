@@ -17,6 +17,8 @@ import {
   NotVerifiedUserError,
 } from 'common/errors';
 import { compareHash, hashPassword } from 'utils/commonUtils';
+import constants from 'common/constants';
+import { phoneValidator, verifyCodeValidator } from 'utils/validator';
 
 function signToken(credentials) {
   return jwt.sign(credentials, process.env.TOKEN_SECRET, { algorithm: 'HS256' });
@@ -80,7 +82,7 @@ export default {
     if (!user) throw new NotValidatedUserError();
 
     if (user.is_verified
-      || Date.now() - user.last_verified_at < 12000
+      || Date.now() - user.last_verified_at < constants.MIN_RE_VERIFYING_TIME
     ) throw new AlreadyDoneActionError();
 
     await sequelize.query('UPDATE users SET last_verified_at = NOW() where id = :id', { type: QueryTypes.UPDATE, replacements: { id: user.id } });
@@ -89,9 +91,8 @@ export default {
 
   checkVerifyCode: async (phonenumber, verifyCode) => {
     if (!phonenumber || !verifyCode) throw new NotEnoughParamsError();
-    if (!phonenumber.match(/^[0][0-9]{9}$/g)) throw new InvalidParamsValueError({ message: 'Phonenumber must be 10 in length and start with 0' });
-    if (!verifyCode.match(/^[0-9a-zA-Z]{6}/g)) throw new InvalidParamsValueError({ message: 'Verify code must be 6 in length and contain only alphanumeric characters' });
-
+    phoneValidator.validate(phonenumber);
+    verifyCodeValidator.validate(verifyCode);
     const user = await User.findOne({ where: { phonenumber, verify_code: verifyCode } });
 
     if (!user) throw new InvalidParamsValueError({ message: 'Verify code is not matched' });

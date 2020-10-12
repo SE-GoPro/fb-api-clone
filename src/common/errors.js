@@ -1,4 +1,8 @@
 /* eslint-disable max-classes-per-file */
+import constants from 'common/constants';
+
+const { ResponseCodes } = constants;
+
 export class ServerAPIError extends Error {
   constructor({
     status, code, message, data,
@@ -16,7 +20,7 @@ export class InvalidPasswordError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 400,
-      code: '40000',
+      code: ResponseCodes.WRONG_PASSWORD,
       message: 'Password is not correct',
       ...payload,
     });
@@ -28,7 +32,7 @@ export class UnauthorizedError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 401,
-      code: '40100',
+      code: ResponseCodes.UNAUTHORIZED,
       message: 'Unauthorized',
       ...payload,
     });
@@ -39,18 +43,19 @@ export class NotVerifiedUserError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 401,
-      code: '40101',
+      code: ResponseCodes.NOT_VERIFIED_USER,
       message: 'User is not verified',
       ...payload,
     });
   }
 }
 
+// Spec errors
 export class NotValidatedUserError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 404,
-      code: '9995',
+      code: ResponseCodes.NOT_VERIFIED_USER,
       message: 'User is not validated',
       ...payload,
     });
@@ -61,7 +66,7 @@ export class ExistedUserError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 409,
-      code: '9996',
+      code: ResponseCodes.EXISTED_USER,
       message: 'User already exists',
       ...payload,
     });
@@ -72,7 +77,7 @@ export class InvalidTokenError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 401,
-      code: '9998',
+      code: ResponseCodes.INVALID_TOKEN,
       message: 'Token is invalid',
       ...payload,
     });
@@ -82,8 +87,8 @@ export class InvalidTokenError extends ServerAPIError {
 export class NotEnoughParamsError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
+      code: ResponseCodes.NOT_ENOUGH_PARAM,
       status: 400,
-      code: '1002',
       message: 'Parameter is not enough',
       ...payload,
     });
@@ -94,7 +99,7 @@ export class InvalidParamsTypeError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 400,
-      code: '1003',
+      code: ResponseCodes.INVALID_PARAM_TYPE,
       message: `Parameters type is invalid: ${payload.message || ''}`,
       data: payload.data,
     });
@@ -105,7 +110,7 @@ export class InvalidParamsValueError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 400,
-      code: '1004',
+      code: ResponseCodes.INVALID_PARAM_VALUE,
       message: `Parameters value is invalid: ${payload.message || ''}`,
       data: payload.data,
     });
@@ -116,7 +121,7 @@ export class AlreadyDoneActionError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 409,
-      code: '1010',
+      code: ResponseCodes.ALREADY_DONE_ACTION,
       message: 'Action has been done previously by this user',
       ...payload,
     });
