@@ -2,23 +2,31 @@ import { DataTypes } from 'sequelize';
 import sequelize from 'utils/sequelize';
 
 const User = sequelize.define('User', {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
+  name: DataTypes.STRING,
   email: {
     type: DataTypes.STRING,
-    allowNull: false
+    validate: {
+      isEmail: {
+        msg: 'Email address is not valid',
+      },
+    },
   },
-  password: {
+  password: DataTypes.STRING,
+  phonenumber: {
     type: DataTypes.STRING,
-    allowNull: false
+    validate: {
+      is: {
+        args: new RegExp(/^[0][0-9]{9}$/g),
+        msg: 'Phonenumber must be 10 in length, contain only numeric characters and start with 0',
+      },
+    },
   },
-  phone_number: DataTypes.STRING,
   avatar_url: DataTypes.STRING,
+  verify_code: DataTypes.STRING,
+  is_verified: DataTypes.BOOLEAN,
 }, {
   tableName: 'users',
-  timestamps: false
+  timestamps: false,
 });
 
 export default User;

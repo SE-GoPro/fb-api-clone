@@ -10,18 +10,28 @@ export function up(queryInterface, Sequelize) {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    email: {
-      type: Sequelize.STRING,
-      allowNull: false
-    },
+    email: Sequelize.STRING,
     password: {
       type: Sequelize.STRING,
-      allowNull: false
+      allowNull: false,
     },
-    phone_number: Sequelize.STRING,
+    phonenumber: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     avatar_url: Sequelize.STRING,
+    verify_code: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
+    is_verified: {
+      type: Sequelize.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    last_verified_at: Sequelize.DATE,
   });
 }
-export function down(queryInterface, Sequelize) {
+export function down(queryInterface) {
   return queryInterface.dropTable('users');
 }
