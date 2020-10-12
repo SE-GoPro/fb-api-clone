@@ -30,7 +30,7 @@ export function handleAPIError(err, req, res, next) {
 
 export function handleNotFoundError(req, res, next) {
   res.status(404).json({
-    code: '400',
+    code: '404',
     message: `Endpoint ${req.method} ${req.url} Not Found`,
   });
 
