@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
   res.send('Welcome to Node Babel');
 });
 
-app.use('/', routes);
+app.use('/it4788', routes);
 app.use(handleAPIError);
 app.use(handleNotFoundError);
 
