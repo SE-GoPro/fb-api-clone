@@ -16,6 +16,7 @@ export default async function verifyToken(req, res, next) {
     if (!req.body.token) throw new UnauthorizedError();
     const token = await Token.findOne({ where: { token: req.body.token } });
     if (!token) throw new InvalidTokenError();
+    console.log(token);
     jwt.verify(token, process.env.TOKEN_SECRET, (err, data) => {
       if (err) throw new InvalidTokenError();
       req.credentials = data;
