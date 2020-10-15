@@ -11,7 +11,6 @@ import {
   InvalidParamsTypeError,
   InvalidParamsValueError,
   InvalidPasswordError,
-  InvalidTokenError,
   NotEnoughParamsError,
   NotValidatedUserError,
   NotVerifiedUserError,
@@ -56,9 +55,9 @@ export default {
     if (!await compareHash(password, user.password)) throw new InvalidPasswordError();
     if (!user.is_verified) throw new NotVerifiedUserError();
 
-    const token = signToken({ user_id: user.id });
+    const token = signToken({ userId: user.id });
 
-    await Token.create({ user_id: user.id, token });
+    await sequelize.query('INSERT INTO tokens (user_id, token) VALUES (:user_id, :token) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token', { type: QueryTypes.UPSERT, replacements: { user_id: user.id, token } });
     return {
       id: user.id,
       username: user.name,
@@ -67,12 +66,9 @@ export default {
     };
   },
 
-  logout: async (token) => {
+  logout: async (userId, token) => {
     if (!token) throw new NotEnoughParamsError();
-    const savedToken = await Token.findOne({ where: { token } });
-    if (!savedToken) throw new InvalidTokenError();
-
-    await Token.destroy();
+    await Token.destroy({ where: { userId, token } });
   },
 
   getVerifyCode: async (phonenumber) => {
@@ -97,9 +93,12 @@ export default {
 
     if (!user) throw new InvalidParamsValueError({ message: 'Verify code is not matched' });
     if (user.is_verified) throw new ExistedUserError();
-
-    await User.update({ verify_code: null, is_verified: true }, { where: { id: user.id } });
     const token = signToken({ user_id: user.id });
+
+    await Promise.all([
+      User.update({ is_verified: true }, { where: { id: user.id } }),
+      Token.create({ user_id: user.id, token }),
+    ]);
     return {
       token,
       id: user.id,

@@ -7,10 +7,6 @@ module.exports = {
   [API_NODE_ENV]: {
     url: process.env.DB_URL,
     dialect: 'postgres',
-    dialectOptions: {
-      ssl: {
-        rejectUnauthorized: false,
-      },
-    },
+    dialectOptions: API_NODE_ENV === 'local' ? { ssl: false } : { ssl: { rejectUnauthorized: false } },
   },
 };

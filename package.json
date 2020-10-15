@@ -12,7 +12,10 @@
     "start:dev": "cross-env API_NODE_ENV=dev npm start",
     "start:prod": "cross-env API_NODE_ENV=prod npm start",
     "lint": "node ./scripts/lint.js",
-    "fix": "cross-env FIX=1 node ./scripts/lint.js"
+    "fix": "cross-env FIX=1 node ./scripts/lint.js",
+    "migrate": "npx sequelize db:migrate",
+    "migrate:undo": "npx sequelize db:migrate:undo",
+    "migrate:format": "npx sequelize db:migrate:undo:all"
   },
   "repository": {
     "type": "git",
