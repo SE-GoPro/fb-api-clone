@@ -9,6 +9,7 @@ export async function up(queryInterface, Sequelize) {
         key: 'id',
       },
       onDelete: 'CASCADE',
+      primaryKey: true,
     },
     token: {
       type: Sequelize.STRING,

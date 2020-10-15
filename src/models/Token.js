@@ -10,6 +10,7 @@ const Token = sequelize.define('Token', {
   timestamps: false,
 });
 
+Token.removeAttribute('id');
 Token.belongsTo(User, { foreignKey: 'user_id' });
 
 export default Token;

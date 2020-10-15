@@ -20,7 +20,8 @@ router.post('/login', asyncRoute(async (req, res) => {
 
 router.post('/logout', verifyToken, asyncRoute(async (req, res) => {
   const { token } = req.body;
-  await authController.logout(token);
+  const { userId } = req.credentials;
+  await authController.logout(userId, token);
   return handleResponse(res);
 }));
 
