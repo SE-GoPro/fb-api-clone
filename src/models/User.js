@@ -1,4 +1,4 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, QueryTypes } from 'sequelize';
 import sequelize from 'utils/sequelize';
 
 const User = sequelize.define('User', {
@@ -28,5 +28,10 @@ const User = sequelize.define('User', {
   tableName: 'users',
   timestamps: false,
 });
+
+User.updateVerifiedTime = (userId) => sequelize.query(
+  'UPDATE users SET last_verified_at = NOW() where id = :userId',
+  { type: QueryTypes.UPDATE, replacements: { userId } },
+);
 
 export default User;

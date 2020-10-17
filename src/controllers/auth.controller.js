@@ -1,8 +1,6 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { QueryTypes } from 'sequelize';
 
-import sequelize from 'utils/sequelize';
 import User from 'models/User';
 import Token from 'models/Token';
 import {
@@ -57,7 +55,7 @@ export default {
 
     const token = signToken({ userId: user.id });
 
-    await sequelize.query('INSERT INTO tokens (user_id, token) VALUES (:user_id, :token) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token', { type: QueryTypes.UPSERT, replacements: { user_id: user.id, token } });
+    await Token.updateToken(user.id, token);
     return {
       id: user.id,
       username: user.name,
@@ -68,7 +66,7 @@ export default {
 
   logout: async (userId, token) => {
     if (!token) throw new NotEnoughParamsError();
-    await Token.destroy({ where: { userId, token } });
+    await Token.destroy({ where: { user_id: userId, token } });
   },
 
   getVerifyCode: async (phonenumber) => {
@@ -81,7 +79,7 @@ export default {
       || Date.now() - user.last_verified_at < constants.MIN_RE_VERIFYING_TIME
     ) throw new AlreadyDoneActionError();
 
-    await sequelize.query('UPDATE users SET last_verified_at = NOW() where id = :id', { type: QueryTypes.UPDATE, replacements: { id: user.id } });
+    await User.updateVerifiedTime(user.id);
     return { code: user.verify_code };
   },
 
