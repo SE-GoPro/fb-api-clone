@@ -14,10 +14,9 @@ export default async function verifyToken(req, res, next) {
 
     // const token = await Token.findOne({ where: { token: authHeaderParts[1] } });
     if (!req.body.token) throw new UnauthorizedError();
-    const token = await Token.findOne({ where: { token: req.body.token } });
-    if (!token) throw new InvalidTokenError();
-    console.log(token);
-    jwt.verify(token, process.env.TOKEN_SECRET, (err, data) => {
+    const tokenData = await Token.findOne({ where: { token: req.body.token } });
+    if (!tokenData) throw new InvalidTokenError();
+    jwt.verify(tokenData.token, process.env.TOKEN_SECRET, (err, data) => {
       if (err) throw new InvalidTokenError();
       req.credentials = data;
     });
