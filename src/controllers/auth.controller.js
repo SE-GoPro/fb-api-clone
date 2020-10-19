@@ -6,16 +6,13 @@ import Token from 'models/Token';
 import {
   AlreadyDoneActionError,
   ExistedUserError,
-  InvalidParamsTypeError,
   InvalidParamsValueError,
   InvalidPasswordError,
-  NotEnoughParamsError,
   NotValidatedUserError,
   NotVerifiedUserError,
 } from 'common/errors';
 import { compareHash, hashPassword } from 'utils/commonUtils';
 import constants from 'common/constants';
-import { phoneValidator, verifyCodeValidator } from 'utils/validator';
 
 function signToken(credentials) {
   return jwt.sign(credentials, process.env.TOKEN_SECRET, { algorithm: 'HS256' });
@@ -23,11 +20,6 @@ function signToken(credentials) {
 
 export default {
   signup: async (phonenumber, password) => {
-    if (!phonenumber || !password) throw new NotEnoughParamsError();
-    if (typeof phonenumber !== 'string' || typeof password !== 'string') throw new InvalidParamsTypeError();
-    if (phonenumber === password) throw new InvalidParamsValueError({ message: 'password can not be the same with phonenumber' });
-    if (!password.match(/^[0-9a-zA-Z]{6,10}/g)) throw new InvalidParamsValueError({ message: 'password must be 6 to 10 in length' });
-
     const exUser = await User.findOne({ where: { phonenumber } });
     if (exUser) throw new ExistedUserError();
 
@@ -44,9 +36,6 @@ export default {
   },
 
   login: async (phonenumber, password) => {
-    if (!phonenumber || !password) throw NotEnoughParamsError();
-    if (typeof phonenumber !== 'string' || typeof password !== 'string') throw new InvalidParamsTypeError();
-
     const user = await User.findOne({ where: { phonenumber } });
 
     if (!user) throw new NotValidatedUserError();
@@ -65,13 +54,10 @@ export default {
   },
 
   logout: async (userId, token) => {
-    if (!token) throw new NotEnoughParamsError();
     await Token.destroy({ where: { user_id: userId, token } });
   },
 
   getVerifyCode: async (phonenumber) => {
-    if (!phonenumber) throw new NotEnoughParamsError();
-
     const user = await User.findOne({ where: { phonenumber }, attributes: ['id', 'verify_code', 'is_verified', 'last_verified_at'] });
     if (!user) throw new NotValidatedUserError();
 
@@ -84,9 +70,6 @@ export default {
   },
 
   checkVerifyCode: async (phonenumber, verifyCode) => {
-    if (!phonenumber || !verifyCode) throw new NotEnoughParamsError();
-    phoneValidator.validate(phonenumber);
-    verifyCodeValidator.validate(verifyCode);
     const user = await User.findOne({ where: { phonenumber, verify_code: verifyCode } });
 
     if (!user) throw new InvalidParamsValueError({ message: 'Verify code is not matched' });
