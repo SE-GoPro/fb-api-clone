@@ -15,7 +15,8 @@ import { compareHash, hashPassword } from 'utils/commonUtils';
 import constants from 'common/constants';
 
 function signToken(credentials) {
-  return jwt.sign(credentials, process.env.TOKEN_SECRET, { algorithm: 'HS256' });
+  const nonce = crypto.randomBytes(6).toString('hex');
+  return jwt.sign({ nonce, ...credentials }, process.env.TOKEN_SECRET, { algorithm: 'HS256' });
 }
 
 export default {
