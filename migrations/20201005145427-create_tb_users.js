@@ -6,10 +6,7 @@ export function up(queryInterface, Sequelize) {
       autoIncrement: true,
       primaryKey: true,
     },
-    name: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
+    name: Sequelize.STRING,
     email: Sequelize.STRING,
     password: {
       type: Sequelize.STRING,
