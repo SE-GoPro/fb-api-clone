@@ -11,9 +11,9 @@ import {
 
 export default {
   signup: (req, res, next) => {
-    checkRequiredFields(req.body, ['phonenumber', 'password']);
+    checkRequiredFields(req.query, ['phonenumber', 'password']);
 
-    const { phonenumber, password } = req.body;
+    const { phonenumber, password } = req.query;
     phoneValidator.validate(phonenumber);
     passwordValidator.validate(password);
 
@@ -22,8 +22,8 @@ export default {
   },
 
   login: (req, res, next) => {
-    checkRequiredFields(req.body, ['phonenumber', 'password']);
-    const { phonenumber, password } = req.body;
+    checkRequiredFields(req.query, ['phonenumber', 'password']);
+    const { phonenumber, password } = req.query;
     phoneValidator.validate(phonenumber);
     passwordValidator.validate(password);
 
@@ -31,20 +31,20 @@ export default {
   },
 
   logout: (req, res, next) => {
-    checkRequiredFields(req.body, ['token']);
+    checkRequiredFields(req.query, ['token']);
     return next();
   },
 
   getVerifyCode: (req, res, next) => {
-    checkRequiredFields(req.body, ['phonenumber']);
-    phoneValidator.validate(req.body.phonenumber);
+    checkRequiredFields(req.query, ['phonenumber']);
+    phoneValidator.validate(req.query.phonenumber);
 
     return next();
   },
 
   checkVerifyCode: (req, res, next) => {
-    checkRequiredFields(req.body, ['phonenumber, code_verify']);
-    const { phonenumber, code_verify: verifyCode } = req.body;
+    checkRequiredFields(req.query, ['phonenumber, code_verify']);
+    const { phonenumber, code_verify: verifyCode } = req.query;
     phoneValidator.validate(phonenumber);
     verifyCodeValidator.validate(verifyCode);
 

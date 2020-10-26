@@ -7,7 +7,7 @@ const log = console.log.bind(console, c.cyan('linting: '));
 const WITH_FIX = process.env.FIX;
 const WITH_WARN = process.env.WARN;
 
-let command = './node_modules/.bin/eslint src';
+let command = 'npx eslint src';
 if (WITH_FIX) {
   command += ' --fix';
 }

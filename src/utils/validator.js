@@ -39,9 +39,9 @@ export {
 
 /**
  *
- * @param {any} requestBody
+ * @param {any} requestObject
  * @param {string[]} fields
  */
-export function checkRequiredFields(requestBody, fields) {
-  if (fields.some(field => !requestBody[field])) throw new NotEnoughParamsError();
+export function checkRequiredFields(requestObject, fields) {
+  if (fields.some(field => !requestObject[field])) throw new NotEnoughParamsError();
 }
