@@ -43,7 +43,7 @@ export default {
   },
 
   checkVerifyCode: (req, res, next) => {
-    checkRequiredFields(req.query, ['phonenumber, code_verify']);
+    checkRequiredFields(req.query, ['phonenumber', 'code_verify']);
     const { phonenumber, code_verify: verifyCode } = req.query;
     phoneValidator.validate(phonenumber);
     verifyCodeValidator.validate(verifyCode);
