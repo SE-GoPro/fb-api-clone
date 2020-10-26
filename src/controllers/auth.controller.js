@@ -29,7 +29,6 @@ export default {
     await User.create({
       phonenumber,
       password: hash,
-      name: phonenumber,
       verify_code: verifyCode,
     });
     return { verify_code: verifyCode };
