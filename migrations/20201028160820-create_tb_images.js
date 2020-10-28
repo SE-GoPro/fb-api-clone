@@ -1,24 +1,28 @@
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('tokens', {
-    user_id: {
+  await queryInterface.createTable('images', {
+    id: {
+      type: Sequelize.BIGINT,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    post_id: {
       type: Sequelize.BIGINT,
       references: {
         model: {
-          tableName: 'users',
+          tableName: 'posts',
         },
         key: 'id',
       },
       onDelete: 'CASCADE',
-      primaryKey: true,
+      allowNull: false,
     },
-    token: {
+    url: {
       type: Sequelize.STRING,
       allowNull: false,
     },
   });
-
-  await queryInterface.addIndex('tokens', ['user_id'], { unique: true });
 }
 export function down(queryInterface) {
-  return queryInterface.dropTable('tokens');
+  return queryInterface.dropTable('images');
 }
