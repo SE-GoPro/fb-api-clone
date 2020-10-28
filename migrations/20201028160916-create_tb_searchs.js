@@ -1,5 +1,11 @@
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('tokens', {
+  await queryInterface.createTable('searchs', {
+    id: {
+      type: Sequelize.BIGINT,
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     user_id: {
       type: Sequelize.BIGINT,
       references: {
@@ -9,16 +15,18 @@ export async function up(queryInterface, Sequelize) {
         key: 'id',
       },
       onDelete: 'CASCADE',
-      primaryKey: true,
+      allowNull: false,
     },
-    token: {
+    keyword: {
       type: Sequelize.STRING,
       allowNull: false,
     },
+    created: {
+      type: Sequelize.DATE,
+      allowNull: false,
+    },
   });
-
-  await queryInterface.addIndex('tokens', ['user_id'], { unique: true });
 }
 export function down(queryInterface) {
-  return queryInterface.dropTable('tokens');
+  return queryInterface.dropTable('searchs');
 }

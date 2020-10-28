@@ -1,5 +1,5 @@
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('tokens', {
+  await queryInterface.createTable('likes', {
     user_id: {
       type: Sequelize.BIGINT,
       references: {
@@ -9,16 +9,21 @@ export async function up(queryInterface, Sequelize) {
         key: 'id',
       },
       onDelete: 'CASCADE',
-      primaryKey: true,
+      allowNull: false,
     },
-    token: {
-      type: Sequelize.STRING,
+    post_id: {
+      type: Sequelize.BIGINT,
+      references: {
+        model: {
+          tableName: 'posts',
+        },
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
       allowNull: false,
     },
   });
-
-  await queryInterface.addIndex('tokens', ['user_id'], { unique: true });
 }
 export function down(queryInterface) {
-  return queryInterface.dropTable('tokens');
+  return queryInterface.dropTable('likes');
 }
