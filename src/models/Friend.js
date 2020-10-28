@@ -14,5 +14,4 @@ const Friend = sequelize.define('Friend', {
 
 Friend.belongsTo(User, { foreignKey: 'requester_id' });
 Friend.belongsTo(User, { foreignKey: 'requestee_id' });
-
 export default Friend;
