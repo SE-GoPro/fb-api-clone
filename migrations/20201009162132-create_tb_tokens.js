@@ -17,7 +17,7 @@ export async function up(queryInterface, Sequelize) {
     },
   });
 
-  await queryInterface.addIndex('tokens', ['user_id'], { indicesType: 'UNIQUE' });
+  await queryInterface.addIndex('tokens', ['user_id'], { unique: true });
 }
 export function down(queryInterface) {
   return queryInterface.dropTable('tokens');

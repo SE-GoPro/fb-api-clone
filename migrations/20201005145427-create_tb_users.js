@@ -27,6 +27,17 @@ export function up(queryInterface, Sequelize) {
       defaultValue: false,
     },
     last_verified_at: Sequelize.DATE,
+    created: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: Date.now(),
+    },
+    description: Sequelize.STRING,
+    cover_image_url: Sequelize.STRING,
+    link: Sequelize.STRING,
+    address: Sequelize.STRING,
+    city: Sequelize.STRING,
+    country: Sequelize.STRING,
   });
 }
 export function down(queryInterface) {
