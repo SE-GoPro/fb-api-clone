@@ -1,5 +1,5 @@
-export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('blocks', {
+export function up(queryInterface, Sequelize) {
+  return queryInterface.createTable('blocks', {
     blocker_id: {
       type: Sequelize.BIGINT,
       references: {

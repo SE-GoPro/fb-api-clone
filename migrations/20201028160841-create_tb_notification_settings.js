@@ -1,5 +1,5 @@
-export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('notification_settings', {
+export function up(queryInterface, Sequelize) {
+  return queryInterface.createTable('notification_settings', {
     id: {
       type: Sequelize.BIGINT,
       allowNull: false,
