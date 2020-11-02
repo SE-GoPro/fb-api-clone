@@ -1,5 +1,5 @@
-export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('reports', {
+export function up(queryInterface, Sequelize) {
+  return queryInterface.createTable('reports', {
     id: {
       type: Sequelize.BIGINT,
       allowNull: false,

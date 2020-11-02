@@ -1,5 +1,5 @@
-export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('likes', {
+export function up(queryInterface, Sequelize) {
+  return queryInterface.createTable('likes', {
     user_id: {
       type: Sequelize.BIGINT,
       references: {
