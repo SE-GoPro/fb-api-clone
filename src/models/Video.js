@@ -11,8 +11,6 @@ const Video = sequelize.define('Video', {
   timestamps: false,
 });
 
-<<<<<<< HEAD
 Video.belongsTo(Post, { foreignKey: 'post_id' });
 
->>>>>>> feature: create models
 export default Video;
