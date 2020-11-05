@@ -7,10 +7,7 @@ export function up(queryInterface, Sequelize) {
       primaryKey: true,
     },
     name: Sequelize.STRING,
-    email: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
+    email: Sequelize.STRING,
     password: {
       type: Sequelize.STRING,
       allowNull: false,

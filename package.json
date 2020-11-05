@@ -15,7 +15,8 @@
     "fix": "cross-env FIX=1 node ./scripts/lint.js",
     "migrate": "npx sequelize db:migrate",
     "migrate:undo": "npx sequelize db:migrate:undo",
-    "migrate:format": "npx sequelize db:migrate:undo:all"
+    "migrate:format": "npx sequelize db:migrate:undo:all",
+    "migrate:reset": "npx sequelize db:migrate:undo:all && npx sequelize db:migrate"
   },
   "repository": {
     "type": "git",
