@@ -24,20 +24,19 @@ export function up(queryInterface, Sequelize) {
     created: {
       type: Sequelize.DATE,
       allowNull: false,
-    },
-    emotion: {
-      type: Sequelize.STRING,
-      allowNull: false,
+      defaultValue: Date.now(),
     },
     modified: {
       type: Sequelize.DATE,
       allowNull: false,
+      defaultValue: Date.now(),
     },
-    state: Sequelize.STRING,
+    status: Sequelize.STRING,
     banned: Sequelize.STRING,
     can_comment: {
       type: Sequelize.BOOLEAN,
       allowNull: false,
+      defaultValue: true,
     },
   });
 }

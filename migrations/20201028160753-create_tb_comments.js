@@ -35,6 +35,7 @@ export function up(queryInterface, Sequelize) {
     created: {
       type: Sequelize.DATE,
       allowNull: false,
+      defaultValue: Date.now(),
     },
     is_blocked: {
       type: Sequelize.BOOLEAN,
