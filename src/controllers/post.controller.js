@@ -1,8 +1,17 @@
 import Token from 'models/Token';
 import Post from 'models/Post';
+import Image from 'models/Image';
+import Video from 'models/Video';
+import { uploadImage, uploadVideo } from 'utils/firebase';
 
 export default {
-  addPost: async (token, described, status) => {
+  addPost: async ({
+    token,
+    described,
+    status,
+    image,
+    video,
+  }) => {
     const tokenUser = await Token.findOne({ where: { token } });
     const resCreateQuery = await Post.create({
       user_id: tokenUser.user_id,
@@ -10,6 +19,20 @@ export default {
       status,
     });
     const postId = resCreateQuery.dataValues.id;
+    if (image) {
+      const { fileUrl } = await uploadImage(image);
+      await Image.create({
+        post_id: postId,
+        url: fileUrl,
+      });
+    } else if (video) {
+      const { fileUrl, thumbUrl } = await uploadVideo(video);
+      await Video.create({
+        post_id: postId,
+        url: fileUrl,
+        thumb: thumbUrl,
+      });
+    }
     const url = `http://localhost:8000/it4788?user_id=${tokenUser.user_id}&post_id=${postId}`;
     return {
       id: postId,
