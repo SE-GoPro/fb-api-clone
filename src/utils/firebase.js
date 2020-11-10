@@ -24,20 +24,6 @@ firebaseAdmin.initializeApp({
 const firebaseStorage = firebaseAdmin.storage();
 const firebaseStorageBucket = firebaseStorage.bucket('fb-api-clone-gopro.appspot.com');
 
-// export const getFileUrl = async (fileName) => {
-//   let fileUrls = null;
-//   try {
-//     fileUrls = await firebaseStorageBucket
-//       .file(fileName)
-//       .getSignedUrl({
-//         action: 'read',
-//         expires: Date.now() + 1000 * 60 * 60 * 24 * 365 * 2,
-//       });
-//   } catch (error) {
-//     throw new InvalidFileError();
-//   }
-//   return (fileUrls && fileUrls.length > 0) ? fileUrls[0] : null;
-// };
 export const getFileUrl = (fileName, token) => `https://firebasestorage.googleapis.com/v0/b/fb-api-clone-gopro.appspot.com/o/${fileName}?alt=media&token=${token}`;
 
 export const getThumbnailFileName = (fileName) => `thumb_${fileName}.png`;
