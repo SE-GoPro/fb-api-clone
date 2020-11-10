@@ -6,9 +6,8 @@ const Post = sequelize.define('Post', {
   user_id: DataTypes.BIGINT,
   described: DataTypes.STRING,
   created: DataTypes.DATE,
-  emotion: DataTypes.STRING,
   modified: DataTypes.DATE,
-  state: DataTypes.STRING,
+  status: DataTypes.STRING,
   banned: DataTypes.STRING,
   can_comment: DataTypes.BOOLEAN,
 }, {
