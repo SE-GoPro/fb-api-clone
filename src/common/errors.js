@@ -127,3 +127,14 @@ export class AlreadyDoneActionError extends ServerAPIError {
     });
   }
 }
+
+export class InvalidFileError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.INVALID_PARAM_VALUE,
+      message: 'Invalid file',
+      ...payload,
+    });
+  }
+}
