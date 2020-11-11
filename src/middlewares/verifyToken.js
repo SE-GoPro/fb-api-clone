@@ -19,6 +19,7 @@ export default async function verifyToken(req, res, next) {
     jwt.verify(tokenData.token, process.env.TOKEN_SECRET, (err, data) => {
       if (err) throw new InvalidTokenError();
       req.credentials = data;
+      req.tokenData = tokenData;
     });
     return next();
   } catch (e) {
