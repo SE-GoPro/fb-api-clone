@@ -36,8 +36,9 @@ const fs = require('fs');
  * ImageMagick.
  */
 // [START generateThumbnailTrigger]
-exports.generateThumbnail = functions.storage.object().onFinalize(async (object) => {
+exports.generateThumbnail = functions.region('asia-east2').storage.object().onFinalize(async (object) => {
 // [END generateThumbnailTrigger]
+  console.log(`New file created: ${object.name}`);
   // [START eventAttributes]
   const fileBucket = object.bucket; // The Storage bucket that contains the file.
   const filePath = object.name; // File path in the bucket.
@@ -78,9 +79,10 @@ exports.generateThumbnail = functions.storage.object().onFinalize(async (object)
       },
     },
   });
-  console.log('Thumbnail created: ', thumbFileName);
   // Once the thumbnail has been uploaded delete the local file to free up disk space.
-  return fs.unlinkSync(tempFilePath);
+  fs.unlinkSync(tempFilePath);
+  fs.unlinkSync(tempThumbFilePath);
+  return console.log('Thumbnail created: ', thumbFileName);
   // [END thumbnailGeneration]
 });
 // [END generateThumbnail]

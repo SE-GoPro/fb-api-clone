@@ -1,4 +1,3 @@
-import Token from 'models/Token';
 import Post from 'models/Post';
 import Image from 'models/Image';
 import Video from 'models/Video';
@@ -6,15 +5,14 @@ import { uploadImage, uploadVideo } from 'utils/firebase';
 
 export default {
   addPost: async ({
-    token,
+    tokenData,
     described,
     status,
     image,
     video,
   }) => {
-    const tokenUser = await Token.findOne({ where: { token } });
     const resCreateQuery = await Post.create({
-      user_id: tokenUser.user_id,
+      user_id: tokenData.user_id,
       described,
       status,
     });
@@ -33,7 +31,7 @@ export default {
         thumb: thumbUrl,
       });
     }
-    const url = `http://localhost:8000/it4788?user_id=${tokenUser.user_id}&post_id=${postId}`;
+    const url = `http://localhost:8000/it4788?user_id=${tokenData.user_id}&post_id=${postId}`;
     return {
       id: postId,
       url,
