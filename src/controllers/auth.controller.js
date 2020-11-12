@@ -13,6 +13,7 @@ import {
 } from 'common/errors';
 import { compareHash, hashPassword } from 'utils/commonUtils';
 import constants from 'common/constants';
+import sequelize from 'utils/sequelize';
 
 function signToken(credentials) {
   const nonce = crypto.randomBytes(6).toString('hex');
@@ -20,7 +21,7 @@ function signToken(credentials) {
 }
 
 export default {
-  signup: async (phonenumber, password) => {
+  signup: async ({ phonenumber, password }) => {
     const exUser = await User.findOne({ where: { phonenumber } });
     if (exUser) throw new ExistedUserError();
 
@@ -35,7 +36,7 @@ export default {
     return { verify_code: verifyCode };
   },
 
-  login: async (phonenumber, password) => {
+  login: async ({ phonenumber, password }) => {
     const user = await User.findOne({ where: { phonenumber } });
 
     if (!user) throw new NotValidatedUserError();
@@ -53,11 +54,9 @@ export default {
     };
   },
 
-  logout: async (userId, token) => {
-    await Token.destroy({ where: { user_id: userId, token } });
-  },
+  logout: ({ userId, token }) => Token.destroy({ where: { user_id: userId, token } }),
 
-  getVerifyCode: async (phonenumber) => {
+  getVerifyCode: async ({ phonenumber }) => {
     const user = await User.findOne({ where: { phonenumber }, attributes: ['id', 'verify_code', 'is_verified', 'last_verified_at'] });
     if (!user) throw new NotValidatedUserError();
 
@@ -69,17 +68,17 @@ export default {
     return { code: user.verify_code };
   },
 
-  checkVerifyCode: async (phonenumber, verifyCode) => {
+  checkVerifyCode: async ({ phonenumber, verifyCode }) => {
     const user = await User.findOne({ where: { phonenumber, verify_code: verifyCode } });
 
     if (!user) throw new InvalidParamsValueError({ message: 'Verify code is not matched' });
     if (user.is_verified) throw new ExistedUserError();
     const token = signToken({ user_id: user.id });
 
-    await Promise.all([
-      User.update({ is_verified: true }, { where: { id: user.id } }),
-      Token.create({ user_id: user.id, token }),
-    ]);
+    await sequelize.transaction(async t => {
+      await User.update({ is_verified: true }, { where: { id: user.id }, transaction: t });
+      await Token.create({ user_id: user.id, token }, { transaction: t });
+    });
     return {
       token,
       id: user.id,

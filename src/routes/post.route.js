@@ -16,11 +16,11 @@ router.post(
     { name: 'video', maxCount: 1 },
   ]),
   asyncRoute(async (req, res) => {
-    const { tokenData } = req;
+    const { userId } = req.credentials;
     const { described, status } = req.query;
     const { image, video } = req.files;
     const data = await postController.addPost({
-      tokenData,
+      userId,
       described,
       status,
       image: (image && image.length > 0) ? image[0] : null,
