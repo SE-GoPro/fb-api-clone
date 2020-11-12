@@ -30,11 +30,6 @@ export default {
     return next();
   },
 
-  logout: (req, res, next) => {
-    checkRequiredFields(req.query, ['token']);
-    return next();
-  },
-
   getVerifyCode: (req, res, next) => {
     checkRequiredFields(req.query, ['phonenumber']);
     phoneValidator.validate(req.query.phonenumber);

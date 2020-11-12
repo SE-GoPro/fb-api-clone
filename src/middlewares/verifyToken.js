@@ -13,13 +13,13 @@ export default async function verifyToken(req, res, next) {
     // ) throw new InvalidTokenError();
 
     // const token = await Token.findOne({ where: { token: authHeaderParts[1] } });
-    if (!req.query.token) throw new UnauthorizedError();
-    const tokenData = await Token.findOne({ where: { token: req.query.token } });
+    const { token } = req.query;
+    if (!token) throw new UnauthorizedError();
+    const tokenData = await Token.findOne({ where: { token } });
     if (!tokenData) throw new InvalidTokenError();
-    jwt.verify(tokenData.token, process.env.TOKEN_SECRET, (err, data) => {
+    jwt.verify(token, process.env.TOKEN_SECRET, (err, data) => {
       if (err) throw new InvalidTokenError();
       req.credentials = data;
-      req.tokenData = tokenData;
     });
     return next();
   } catch (e) {

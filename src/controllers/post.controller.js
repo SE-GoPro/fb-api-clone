@@ -5,14 +5,14 @@ import { uploadImage, uploadVideo } from 'utils/firebase';
 
 export default {
   addPost: async ({
-    tokenData,
+    userId,
     described,
     status,
     image,
     video,
   }) => {
     const resCreateQuery = await Post.create({
-      user_id: tokenData.user_id,
+      user_id: userId,
       described,
       status,
     });
@@ -31,7 +31,7 @@ export default {
         thumb: thumbUrl,
       });
     }
-    const url = `http://localhost:8000/it4788?user_id=${tokenData.user_id}&post_id=${postId}`;
+    const url = `http://localhost:8000/it4788?user_id=${userId}&post_id=${postId}`;
     return {
       id: postId,
       url,
