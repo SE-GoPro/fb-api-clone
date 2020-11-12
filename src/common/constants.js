@@ -20,6 +20,7 @@ const ResponseCodes = {
   NOT_VALIDATE_USER: '9995',
   EXISTED_USER: '9996',
   INVALID_TOKEN: '9998',
+  BANNED_POST: '9992',
 };
 
 export default {
