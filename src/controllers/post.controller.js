@@ -96,4 +96,12 @@ export default {
       details,
     });
   },
+  editPost: async ({
+    postId, described, status, image, video,
+  }) => {
+    const post = await Post.findOne({ where: { id: postId } });
+    if (!post) throw new InvalidParamsValueError();
+
+    await Post.update({ described, status }, { where: { id: postId } });
+  },
 };

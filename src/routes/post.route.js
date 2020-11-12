@@ -15,7 +15,7 @@ const fieldUploadConfig = [
 ];
 
 router.post('/add_post', verifyToken, upload.fields(fieldUploadConfig), asyncRoute(async (req, res) => {
-  const userId = req.credentials.user_id;
+  const { userId } = req.credentials;
   const { described, status } = req.query;
   if (!req.files) {
     const dataNoImageVideo = await postController.addPost({
@@ -51,6 +51,12 @@ router.get('/get_post', verifyToken, asyncRoute(async (req, res) => {
 router.post('/report_post', verifyToken, asyncRoute(async (req, res) => {
   const { id, subject, details } = req.query;
   const data = await postController.reportPost({ postId: id, subject, details });
+  return handleResponse(res, data);
+}));
+
+router.post('/edit_post', verifyToken, asyncRoute(async (req, res) => {
+  const { id, described, status } = req.query;
+  const data = await postController.editPost({ postId: id, described, status });
   return handleResponse(res, data);
 }));
 
