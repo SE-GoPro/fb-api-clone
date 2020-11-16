@@ -1,4 +1,7 @@
 const MIN_RE_VERIFYING_TIME = 12000;
+const HASH_TAG_MARK = '#';
+const MAX_SEARCH_COUNT = 20;
+const MAX_KEY_WORD_COUNT = 20;
 
 const ResponseCodes = {
   // Server common codes
@@ -17,6 +20,7 @@ const ResponseCodes = {
   INVALID_PARAM_TYPE: '1003',
   INVALID_PARAM_VALUE: '1004',
   ALREADY_DONE_ACTION: '1010',
+  NO_DATA: '9994',
   NOT_VALIDATE_USER: '9995',
   EXISTED_USER: '9996',
   INVALID_TOKEN: '9998',
@@ -24,5 +28,8 @@ const ResponseCodes = {
 
 export default {
   MIN_RE_VERIFYING_TIME,
+  HASH_TAG_MARK,
+  MAX_SEARCH_COUNT,
+  MAX_KEY_WORD_COUNT,
   ResponseCodes,
 };

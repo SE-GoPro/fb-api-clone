@@ -1,5 +1,5 @@
-export function up(queryInterface, Sequelize) {
-  return queryInterface.createTable('searchs', {
+export async function up(queryInterface, Sequelize) {
+  await queryInterface.createTable('searchs', {
     id: {
       type: Sequelize.BIGINT,
       allowNull: false,
@@ -24,9 +24,11 @@ export function up(queryInterface, Sequelize) {
     created: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Date.now(),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     },
   });
+
+  await queryInterface.addIndex('searchs', ['user_id', 'keyword'], { unique: true });
 }
 export function down(queryInterface) {
   return queryInterface.dropTable('searchs');

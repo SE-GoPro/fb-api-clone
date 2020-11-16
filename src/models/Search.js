@@ -1,5 +1,5 @@
 import User from 'models/User';
-import { DataTypes } from 'sequelize';
+import { DataTypes, QueryTypes } from 'sequelize';
 import sequelize from 'utils/sequelize';
 
 const Search = sequelize.define('Search', {
@@ -12,5 +12,13 @@ const Search = sequelize.define('Search', {
 });
 
 Search.belongsTo(User, { foreignKey: 'user_id' });
+
+Search.upsertKeyword = ({
+  userId,
+  keyword,
+}) => sequelize.query(
+  'INSERT INTO searchs (user_id, keyword) VALUES (:userId, :keyword) ON CONFLICT (user_id, keyword) DO UPDATE SET created = CURRENT_TIMESTAMP',
+  { type: QueryTypes.UPSERT, replacements: { userId, keyword } },
+);
 
 export default Search;

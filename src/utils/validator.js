@@ -45,3 +45,7 @@ export {
 export function checkRequiredFields(requestObject, fields) {
   if (fields.some(field => !requestObject[field])) throw new NotEnoughParamsError();
 }
+
+export function checkInteger(value) {
+  if (!Number.isInteger(parseInt(value, 10))) throw new InvalidParamsTypeError();
+}
