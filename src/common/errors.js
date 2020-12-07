@@ -149,3 +149,14 @@ export class NoDataError extends ServerAPIError {
     });
   }
 }
+
+export class BannedPostError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.BANNED_POST,
+      message: 'Post is already banned',
+      ...payload,
+    });
+  }
+}
