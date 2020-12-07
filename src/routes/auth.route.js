@@ -21,7 +21,7 @@ router.post('/login', authValidation.login, asyncRoute(async (req, res) => {
 
 router.post('/logout', verifyToken, asyncRoute(async (req, res) => {
   const { token } = req.query;
-  const { user_id: userId } = req.credentials;
+  const { userId } = req.credentials;
   await authController.logout({ userId, token });
   return handleResponse(res);
 }));
