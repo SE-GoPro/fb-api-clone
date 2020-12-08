@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 
+import asyncHandler from 'utils/asyncHandler';
 import User from 'models/User';
 import Token from 'models/Token';
 import {
@@ -14,6 +15,7 @@ import {
 import { compareHash, hashPassword } from 'utils/commonUtils';
 import constants from 'common/constants';
 import sequelize from 'utils/sequelize';
+import handleResponse from 'utils/handleResponses';
 
 function signToken(credentials) {
   const nonce = crypto.randomBytes(6).toString('hex');
@@ -21,7 +23,8 @@ function signToken(credentials) {
 }
 
 export default {
-  signup: async ({ phonenumber, password }) => {
+  signup: asyncHandler(async (req, res) => {
+    const { phonenumber, password } = req.query;
     const exUser = await User.findOne({ where: { phonenumber } });
     if (exUser) throw new ExistedUserError();
 
@@ -33,10 +36,11 @@ export default {
       password: hash,
       verify_code: verifyCode,
     });
-    return { verify_code: verifyCode };
-  },
+    return handleResponse(res, { verify_code: verifyCode });
+  }),
 
-  login: async ({ phonenumber, password }) => {
+  login: asyncHandler(async (req, res) => {
+    const { phonenumber, password } = req.query;
     const user = await User.findOne({ where: { phonenumber } });
 
     if (!user) throw new NotValidatedUserError();
@@ -46,17 +50,23 @@ export default {
     const token = signToken({ userId: user.id });
 
     await Token.updateToken(user.id, token);
-    return {
+    return handleResponse(res, {
       id: user.id,
       username: user.name,
       token,
       avatar: user.avatar_url,
-    };
-  },
+    });
+  }),
 
-  logout: ({ userId, token }) => Token.destroy({ where: { user_id: userId, token } }),
+  logout: asyncHandler(async (req, res) => {
+    const { token } = req.query;
+    const { userId } = req.credentials;
+    await Token.destroy({ where: { user_id: userId, token } });
+    return handleResponse(res);
+  }),
 
-  getVerifyCode: async ({ phonenumber }) => {
+  getVerifyCode: asyncHandler(async (req, res) => {
+    const { phonenumber } = req.query;
     const user = await User.findOne({ where: { phonenumber }, attributes: ['id', 'verify_code', 'is_verified', 'last_verified_at'] });
     if (!user) throw new NotValidatedUserError();
 
@@ -65,10 +75,11 @@ export default {
     ) throw new AlreadyDoneActionError();
 
     await User.updateVerifiedTime(user.id);
-    return { code: user.verify_code };
-  },
+    return handleResponse(res, { code: user.verify_code });
+  }),
 
-  checkVerifyCode: async ({ phonenumber, verifyCode }) => {
+  checkVerifyCode: asyncHandler(async (req, res) => {
+    const { phonenumber, code_verify: verifyCode } = req.query;
     const user = await User.findOne({ where: { phonenumber, verify_code: verifyCode } });
 
     if (!user) throw new InvalidParamsValueError({ message: 'Verify code is not matched' });
@@ -79,9 +90,9 @@ export default {
       await User.update({ is_verified: true }, { where: { id: user.id }, transaction: t });
       await Token.create({ user_id: user.id, token }, { transaction: t });
     });
-    return {
+    return handleResponse(res, {
       token,
       id: user.id,
-    };
-  },
+    });
+  }),
 };

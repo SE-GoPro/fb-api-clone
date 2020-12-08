@@ -1,4 +1,6 @@
 /* eslint-disable camelcase */
+import asyncHandler from 'utils/asyncHandler';
+import handleResponse from 'utils/handleResponses';
 import Post from 'models/Post';
 import Image from 'models/Image';
 import Video from 'models/Video';
@@ -10,9 +12,19 @@ import User from 'models/User';
 import Report from 'models/Report';
 
 export default {
-  addPost: async ({
-    userId, described, status, image, video,
-  }) => {
+  addPost: asyncHandler(async (req, res) => {
+    const { userId } = req.credentials;
+    const { described, status } = req.query;
+
+    let image;
+    let video;
+    if (req.files) {
+      const images = req.files.image;
+      const videos = req.files.video;
+      image = (images && images.length > 0) ? images[0] : null;
+      video = (videos && videos.length > 0) ? videos[0] : null;
+    }
+
     const resCreateQuery = await Post.create({
       user_id: userId,
       described,
@@ -34,20 +46,24 @@ export default {
       });
     }
     const url = `http://localhost:8000/it4788?user_id=${userId}&post_id=${postId}`;
-    return {
+    return handleResponse(res, {
       id: postId,
       url,
-    };
-  },
-  deletePost: async ({ postId }) => {
-    const post = await Post.findOne({ where: { id: postId } });
+    });
+  }),
+  deletePost: asyncHandler(async (req, res) => {
+    const { id } = req.query;
+    const post = await Post.findOne({ where: { id } });
 
     if (!post) throw new InvalidParamsValueError();
     if (post.banned) throw new BannedPostError();
-    await Post.destroy({ where: { id: postId } });
-  },
-  getPost: async ({ postId }) => {
-    const post = await Post.findOne({ where: { id: postId } });
+    await Post.destroy({ where: { id } });
+
+    return handleResponse(res);
+  }),
+  getPost: asyncHandler(async (req, res) => {
+    const { id } = req.query;
+    const post = await Post.findOne({ where: { id } });
     if (!post) throw new InvalidParamsValueError();
 
     const image = await Image.findOne({ where: { post_id: post.id } });
@@ -61,10 +77,10 @@ export default {
     const user = await User.findOne({ where: { id: post.user_id } });
 
     const {
-      id, described, created, modified, status, banned, can_comment,
+      id: postId, described, created, modified, status, banned, can_comment,
     } = post;
-    return {
-      id,
+    return handleResponse(res, {
+      id: postId,
       described,
       created,
       modified,
@@ -80,29 +96,32 @@ export default {
         name: user.name,
         avatar: user.avatar_url,
       },
-    };
-  },
-  reportPost: async ({ postId, subject, details }) => {
-    const post = await Post.findOne({ where: { id: postId } });
+    });
+  }),
+  reportPost: asyncHandler(async (req, res) => {
+    const { id, subject, details } = req.query;
+    const post = await Post.findOne({ where: { id } });
     if (!post) throw new InvalidParamsValueError();
     if (post.banned) throw new BannedPostError();
 
     const user = await User.findOne({ where: { id: post.user_id } });
 
     await Report.create({
-      post_id: postId,
+      post_id: id,
       user_id: user.id,
       subject,
       details,
     });
-  },
-  editPost: async ({
-    // eslint-disable-next-line no-unused-vars
-    postId, described, status, image, video,
-  }) => {
-    const post = await Post.findOne({ where: { id: postId } });
+
+    return handleResponse(res);
+  }),
+  editPost: asyncHandler(async (req, res) => {
+    const { id, described, status } = req.query;
+    const post = await Post.findOne({ where: { id } });
     if (!post) throw new InvalidParamsValueError();
 
-    await Post.update({ described, status }, { where: { id: postId } });
-  },
+    await Post.update({ described, status }, { where: { id } });
+
+    return handleResponse(res);
+  }),
 };

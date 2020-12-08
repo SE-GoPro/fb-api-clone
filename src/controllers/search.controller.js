@@ -1,5 +1,6 @@
 import constants from 'common/constants';
 
+import asyncHandler from 'utils/asyncHandler';
 import Post from 'models/Post';
 import Image from 'models/Image';
 import Search from 'models/Search';
@@ -9,6 +10,7 @@ import User from 'models/User';
 import { getTimeField } from 'utils/sequelize';
 import { Op } from 'sequelize';
 import { NoDataError } from 'common/errors';
+import handleResponse from 'utils/handleResponses';
 
 const {
   HASH_TAG_MARK,
@@ -48,12 +50,9 @@ function searchResultTransform({
 }
 
 export default {
-  search: async ({
-    userId,
-    keyword,
-    index,
-    count,
-  }) => {
+  search: asyncHandler(async (req, res) => {
+    const { keyword, index, count } = req.query;
+    const { userId } = req.credentials;
     const startId = parseInt(index, 10);
     if (!keyword.startsWith(HASH_TAG_MARK)) {
       await Search.upsertKeyword({
@@ -94,14 +93,13 @@ export default {
       });
     }));
 
-    return transformedPostsList;
-  },
+    return handleResponse(res, transformedPostsList);
+  }),
 
-  getSavedSearch: async ({
-    userId,
-    index,
-    count,
-  }) => {
+  getSavedSearch: asyncHandler(async (req, res) => {
+    const { index, count } = req.query;
+    const { userId } = req.credentials;
+
     const limit = parseInt(count, 10);
     const listKeywords = await Search.findAll({
       where: { user_id: userId, id: { [Op.gte]: parseInt(index, 10) } },
@@ -110,14 +108,13 @@ export default {
       limit: limit <= MAX_KEY_WORD_COUNT ? limit : MAX_KEY_WORD_COUNT,
     });
 
-    return listKeywords;
-  },
+    return handleResponse(res, listKeywords);
+  }),
 
-  delSavedSearch: async ({
-    userId,
-    searchId,
-    all,
-  }) => {
+  delSavedSearch: asyncHandler(async (req, res) => {
+    const { search_id: searchId, all } = req.query;
+    const { userId } = req.credentials;
+
     const delConditions = { user_id: userId };
     if (parseInt(all, 10) === 1) {
       const listKeywords = await Search.findAll({ where: { user_id: userId } });
@@ -125,8 +122,9 @@ export default {
     } else {
       delConditions.id = searchId;
     }
-    return Search.destroy({
+    await Search.destroy({
       where: delConditions,
     });
-  },
+    return handleResponse(res);
+  }),
 };
