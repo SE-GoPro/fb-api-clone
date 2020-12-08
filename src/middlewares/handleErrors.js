@@ -16,7 +16,7 @@ export function handleAPIError(err, req, res, next) {
     } else if (err instanceof ValidationError) {
       res.status(400).json({
         code: ResponseCodes.INVALID_PARAM_VALUE,
-        message: `Parameters value is invalid: ${err.message.replace(/Validation error: /g, '').replace(/\n/g, ' ')}`, // Remove 'Validation error: ' prefix
+        message: 'Parameters value is invalid',
         data: null,
       });
     } else {
@@ -25,7 +25,7 @@ export function handleAPIError(err, req, res, next) {
         message: 'Internal Server Error',
         data: null,
       });
-      console.log(err.message);
+      console.log(err);
     }
   }
   return next(err);

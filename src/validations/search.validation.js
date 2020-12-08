@@ -9,7 +9,7 @@ export default {
     checkRequiredFields(req.query, ['keyword', 'index', 'count']);
 
     const { index, count, keyword } = req.query;
-    if (keyword.trim().length === 0) throw new InvalidParamsValueError({ message: 'Keyword is empty!' });
+    if (keyword.trim().length === 0) throw new InvalidParamsValueError();
     checkInteger(index);
     checkInteger(count);
 
@@ -28,13 +28,13 @@ export default {
   delSavedSearch: (req, res, next) => {
     const { search_id: searchId, all } = req.query;
     const isAll = parseInt(all, 10);
-    if (isAll !== 1 && isAll !== 0) throw new InvalidParamsValueError({ message: 'Invalid value of "all" (0 or 1 allowed)' });
+    if (isAll !== 1 && isAll !== 0) throw new InvalidParamsValueError();
     if (!isAll) {
       if (!searchId) throw new NotEnoughParamsError();
     }
     if (searchId) {
       checkInteger(searchId);
-      if (parseInt(searchId, 10) <= 0) throw new InvalidParamsValueError({ message: 'search_id must be greater than 0' });
+      if (parseInt(searchId, 10) <= 0) throw new InvalidParamsValueError();
     }
 
     return next();

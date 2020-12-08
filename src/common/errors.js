@@ -100,7 +100,7 @@ export class InvalidParamsTypeError extends ServerAPIError {
     super({
       status: 400,
       code: ResponseCodes.INVALID_PARAM_TYPE,
-      message: `Parameters type is invalid: ${payload.message || ''}`,
+      message: 'Parameters type is invalid',
       data: payload.data,
     });
   }
@@ -111,7 +111,7 @@ export class InvalidParamsValueError extends ServerAPIError {
     super({
       status: 400,
       code: ResponseCodes.INVALID_PARAM_VALUE,
-      message: `Parameters value is invalid: ${payload.message || ''}`,
+      message: 'Parameters value is invalid',
       data: payload.data,
     });
   }

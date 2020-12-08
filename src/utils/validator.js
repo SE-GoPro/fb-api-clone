@@ -4,32 +4,21 @@ import {
   NotEnoughParamsError,
 } from 'common/errors';
 
-class StringValidator {
-  /**
-   *
-   * @param {RegExp} regex
-   * @param {string} errorMsg
-   */
-  constructor(regex, errorMsg) {
-    this.regex = regex;
-    this.errorMsg = errorMsg;
-  }
-
-  /**
-   *
-   * @param {string} str
-   */
-  validate(str) {
-    if (typeof str !== 'string') throw new InvalidParamsTypeError();
-    if (!str.match(this.regex)) throw new InvalidParamsValueError({ message: this.errorMsg });
-  }
+/**
+ *
+ * @param {RegExp} regex
+ * @param {string} paramValue
+ */
+function validateParam(regex, paramValue) {
+  if (typeof paramValue !== 'string') throw new InvalidParamsTypeError();
+  if (!paramValue.match(regex)) throw new InvalidParamsValueError();
 }
 
-const phoneValidator = new StringValidator(RegExp(/^[0][0-9]{9}$/g), 'Phonenumber must be 10 in length, contain only numeric characters and start with 0');
+const phoneValidator = (phone) => validateParam(RegExp(/^[0][0-9]{9}$/g), phone);
 
-const verifyCodeValidator = new StringValidator(RegExp(/^[0-9a-zA-Z]{6}$/g), 'Verify code must be 6 in length and contain only alphanumeric characters');
+const verifyCodeValidator = (code) => validateParam(RegExp(/^[0-9a-zA-Z]{6}$/g), code);
 
-const passwordValidator = new StringValidator(RegExp(/^[0-9a-zA-Z]{6,10}$/g), 'Password must be 6 to 10 in length');
+const passwordValidator = (password) => validateParam(RegExp(/^[0-9a-zA-Z]{6,10}$/g), password);
 
 export {
   phoneValidator,

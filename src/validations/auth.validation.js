@@ -14,25 +14,25 @@ export default {
     checkRequiredFields(req.query, ['phonenumber', 'password']);
 
     const { phonenumber, password } = req.query;
-    phoneValidator.validate(phonenumber);
-    passwordValidator.validate(password);
+    phoneValidator(phonenumber);
+    passwordValidator(password);
 
-    if (phonenumber === password) throw new InvalidParamsValueError({ message: 'password can not be the same with phonenumber' });
+    if (phonenumber === password) throw new InvalidParamsValueError();
     return next();
   },
 
   login: (req, res, next) => {
     checkRequiredFields(req.query, ['phonenumber', 'password']);
     const { phonenumber, password } = req.query;
-    phoneValidator.validate(phonenumber);
-    passwordValidator.validate(password);
+    phoneValidator(phonenumber);
+    passwordValidator(password);
 
     return next();
   },
 
   getVerifyCode: (req, res, next) => {
     checkRequiredFields(req.query, ['phonenumber']);
-    phoneValidator.validate(req.query.phonenumber);
+    phoneValidator(req.query.phonenumber);
 
     return next();
   },
@@ -40,8 +40,8 @@ export default {
   checkVerifyCode: (req, res, next) => {
     checkRequiredFields(req.query, ['phonenumber', 'code_verify']);
     const { phonenumber, code_verify: verifyCode } = req.query;
-    phoneValidator.validate(phonenumber);
-    verifyCodeValidator.validate(verifyCode);
+    phoneValidator(phonenumber);
+    verifyCodeValidator(verifyCode);
 
     return next();
   },

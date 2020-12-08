@@ -82,7 +82,7 @@ export default {
     const { phonenumber, code_verify: verifyCode } = req.query;
     const user = await User.findOne({ where: { phonenumber, verify_code: verifyCode } });
 
-    if (!user) throw new InvalidParamsValueError({ message: 'Verify code is not matched' });
+    if (!user) throw new InvalidParamsValueError();
     if (user.is_verified) throw new ExistedUserError();
     const token = signToken({ user_id: user.id });
 
