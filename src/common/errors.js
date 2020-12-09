@@ -55,7 +55,7 @@ export class NotValidatedUserError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 404,
-      code: ResponseCodes.NOT_VERIFIED_USER,
+      code: ResponseCodes.NOT_VALIDATE_USER,
       message: 'User is not validated',
       ...payload,
     });

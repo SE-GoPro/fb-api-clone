@@ -7,10 +7,8 @@ import Token from 'models/Token';
 import {
   AlreadyDoneActionError,
   ExistedUserError,
-  InvalidParamsValueError,
   InvalidPasswordError,
   NotValidatedUserError,
-  NotVerifiedUserError,
 } from 'common/errors';
 import { compareHash, hashPassword } from 'utils/commonUtils';
 import constants from 'common/constants';
@@ -36,7 +34,7 @@ export default {
       password: hash,
       verify_code: verifyCode,
     });
-    return handleResponse(res, { verify_code: verifyCode });
+    return handleResponse(res, { code_verify: verifyCode });
   }),
 
   login: asyncHandler(async (req, res) => {
@@ -45,7 +43,7 @@ export default {
 
     if (!user) throw new NotValidatedUserError();
     if (!await compareHash(password, user.password)) throw new InvalidPasswordError();
-    if (!user.is_verified) throw new NotVerifiedUserError();
+    // if (!user.is_verified) throw new NotValidatedUserError();
 
     const token = signToken({ userId: user.id });
 
@@ -60,8 +58,7 @@ export default {
 
   logout: asyncHandler(async (req, res) => {
     const { token } = req.query;
-    const { userId } = req.credentials;
-    await Token.destroy({ where: { user_id: userId, token } });
+    await Token.destroy({ where: { token } });
     return handleResponse(res);
   }),
 
@@ -75,20 +72,20 @@ export default {
     ) throw new AlreadyDoneActionError();
 
     await User.updateVerifiedTime(user.id);
-    return handleResponse(res, { code: user.verify_code });
+    return handleResponse(res, { code_verify: user.verify_code });
   }),
 
   checkVerifyCode: asyncHandler(async (req, res) => {
     const { phonenumber, code_verify: verifyCode } = req.query;
     const user = await User.findOne({ where: { phonenumber, verify_code: verifyCode } });
 
-    if (!user) throw new InvalidParamsValueError();
+    if (!user) throw new NotValidatedUserError();
     if (user.is_verified) throw new ExistedUserError();
     const token = signToken({ user_id: user.id });
 
     await sequelize.transaction(async t => {
       await User.update({ is_verified: true }, { where: { id: user.id }, transaction: t });
-      await Token.create({ user_id: user.id, token }, { transaction: t });
+      await Token.updateToken(user.id, token, t);
     });
     return handleResponse(res, {
       token,

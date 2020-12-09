@@ -20,15 +20,16 @@ export function handleAPIError(err, req, res, next) {
         data: null,
       });
     } else {
+      console.log(err);
       res.status(500).json({
         code: ResponseCodes.INTERNAL_SERVER_ERROR,
         message: 'Internal Server Error',
         data: null,
       });
-      console.log(err);
     }
+    return next(err);
   }
-  return next(err);
+  return next();
 }
 
 export function handleNotFoundError(req, res, next) {

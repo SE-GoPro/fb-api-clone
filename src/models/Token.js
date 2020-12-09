@@ -13,9 +13,16 @@ const Token = sequelize.define('Token', {
 Token.removeAttribute('id');
 Token.belongsTo(User, { foreignKey: 'user_id' });
 
-Token.updateToken = (userId, token) => sequelize.query(
-  'INSERT INTO tokens (user_id, token) VALUES (:userId, :token) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token',
-  { type: QueryTypes.UPSERT, replacements: { userId, token } },
-);
+Token.updateToken = (userId, token, transaction) => {
+  const queryOptions = {
+    type: QueryTypes.UPSERT,
+    replacements: { userId, token },
+  };
+  if (transaction) Object.assign(queryOptions, { transaction });
+  sequelize.query(
+    'INSERT INTO tokens (user_id, token) VALUES (:userId, :token) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token',
+    queryOptions,
+  );
+};
 
 export default Token;

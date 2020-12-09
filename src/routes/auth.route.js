@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import authController from 'controllers/auth.controller';
-import verifyToken from 'middlewares/verifyToken';
+import verifyLogoutToken from 'middlewares/verifyLogoutToken';
 import authValidation from 'validations/auth.validation';
 
 const router = Router();
@@ -19,7 +19,7 @@ router.post(
 
 router.post(
   '/logout',
-  verifyToken,
+  verifyLogoutToken,
   authController.logout,
 );
 
