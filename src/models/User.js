@@ -32,6 +32,7 @@ const User = sequelize.define('User', {
   address: DataTypes.STRING,
   city: DataTypes.STRING,
   country: DataTypes.STRING,
+  is_blocked: DataTypes.BOOLEAN,
 }, {
   tableName: 'users',
   timestamps: false,

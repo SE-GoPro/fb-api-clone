@@ -7,6 +7,7 @@ import {
   passwordValidator,
   checkRequiredFields,
   verifyCodeValidator,
+  userNameValidator,
 } from 'utils/validator';
 
 export default {
@@ -48,6 +49,9 @@ export default {
 
   changeInfoAfterSignup: (req, res, next) => {
     checkRequiredFields(req.query, ['username']);
+    const { username } = req.query;
+    userNameValidator(username);
+
     return next();
   },
 };

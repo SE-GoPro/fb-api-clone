@@ -122,7 +122,7 @@ export class AlreadyDoneActionError extends ServerAPIError {
     super({
       status: 409,
       code: ResponseCodes.ALREADY_DONE_ACTION,
-      message: 'Action has been done previously by this user',
+      message: 'action has been done previously by this user',
       ...payload,
     });
   }
@@ -167,6 +167,28 @@ export class ExceptionError extends ServerAPIError {
       status: 500,
       code: ResponseCodes.EXCEPTION_ERROR,
       message: 'Exception Error',
+      ...payload,
+    });
+  }
+}
+
+export class NotAccessError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 403,
+      code: ResponseCodes.NOT_ACCESS,
+      message: 'Not access',
+      ...payload,
+    });
+  }
+}
+
+export class ExceededFileSizeError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.EXCEEDED_FILE_SIZE,
+      message: 'File size is too big',
       ...payload,
     });
   }

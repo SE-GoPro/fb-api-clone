@@ -4,18 +4,23 @@ import jwt from 'jsonwebtoken';
 import asyncHandler from 'utils/asyncHandler';
 import User from 'models/User';
 import Token from 'models/Token';
+import UserFailAction from 'models/UserFailAction';
 import {
   AlreadyDoneActionError,
   ExistedUserError,
   InvalidPasswordError,
   NotValidatedUserError,
   ExceptionError,
+  InvalidParamsValueError,
+  NotAccessError,
+  ExceededFileSizeError,
 } from 'common/errors';
 import { compareHash, hashPassword } from 'utils/commonUtils';
 import constants from 'common/constants';
 import sequelize from 'utils/sequelize';
 import handleResponse from 'utils/handleResponses';
 import { uploadImage } from 'utils/firebase';
+import { isURL } from 'utils/validator';
 
 function signToken(credentials) {
   const nonce = crypto.randomBytes(6).toString('hex');
@@ -100,9 +105,31 @@ export default {
     const { username } = req.query;
     const updates = { name: username };
 
+    const user = await User.findOne({ where: { id: userId }, attributes: ['phonenumber', 'is_blocked'] });
+    if (!user) throw new NotValidatedUserError();
+    if (user.phonenumber === username) throw new InvalidParamsValueError();
+    if (user.is_blocked) throw new NotAccessError();
+
+    if (isURL(username)) {
+      const failActions = await UserFailAction.findOne({ where: { user_id: userId }, attributes: ['change_username'] });
+      if (!failActions) {
+        await UserFailAction.create({ user_id: userId });
+      } else {
+        if (failActions.change_username === constants.MAX_CHANGE_USERNAME_FAIL_COUNT) {
+          await User.update({ is_blocked: true }, { where: { id: userId } });
+          throw new NotAccessError();
+        }
+        await UserFailAction.increment('change_username', { where: { user_id: userId } });
+      }
+      throw new InvalidParamsValueError();
+    }
+
     const avatarFile = req.file || null;
     if (avatarFile) {
-      const { fileUrl } = await uploadImage(avatarFile);
+      const { fileUrl } = await uploadImage(avatarFile)
+        .catch(() => {
+          throw new ExceededFileSizeError();
+        });
       Object.assign(updates, { avatar_url: fileUrl });
     }
     const result = await User.update(updates, {

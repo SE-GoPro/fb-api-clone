@@ -1,3 +1,4 @@
+import { URL } from 'url';
 import {
   InvalidParamsTypeError,
   InvalidParamsValueError,
@@ -20,10 +21,13 @@ const verifyCodeValidator = (code) => validateParam(RegExp(/^[0-9a-zA-Z]{6}$/g),
 
 const passwordValidator = (password) => validateParam(RegExp(/^[0-9a-zA-Z]{6,10}$/g), password);
 
+const userNameValidator = (name) => validateParam(RegExp(/[\w\d]+/g), name);
+
 export {
   phoneValidator,
   verifyCodeValidator,
   passwordValidator,
+  userNameValidator,
 };
 
 /**
@@ -37,4 +41,14 @@ export function checkRequiredFields(requestObject, fields) {
 
 export function checkInteger(value) {
   if (!Number.isInteger(parseInt(value, 10))) throw new InvalidParamsTypeError();
+}
+
+export function isURL(str) {
+  try {
+    const url = new URL(str);
+    if (url) return true;
+    return false;
+  } catch (e) {
+    return false;
+  }
 }

@@ -2,6 +2,7 @@ const MIN_RE_VERIFYING_TIME = 12000;
 const HASH_TAG_MARK = '#';
 const MAX_SEARCH_COUNT = 20;
 const MAX_KEY_WORD_COUNT = 20;
+const MAX_CHANGE_USERNAME_FAIL_COUNT = 10;
 
 const ResponseCodes = {
   // Server common codes
@@ -19,6 +20,8 @@ const ResponseCodes = {
   NOT_ENOUGH_PARAM: '1002',
   INVALID_PARAM_TYPE: '1003',
   INVALID_PARAM_VALUE: '1004',
+  EXCEEDED_FILE_SIZE: '1006',
+  NOT_ACCESS: '1009',
   ALREADY_DONE_ACTION: '1010',
   BANNED_POST: '9992',
   NO_DATA: '9994',
@@ -39,6 +42,7 @@ export default {
   HASH_TAG_MARK,
   MAX_SEARCH_COUNT,
   MAX_KEY_WORD_COUNT,
+  MAX_CHANGE_USERNAME_FAIL_COUNT,
   ResponseCodes,
   ValidMimeTypes,
 };

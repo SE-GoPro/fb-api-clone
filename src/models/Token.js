@@ -19,7 +19,7 @@ Token.updateToken = (userId, token, transaction) => {
     replacements: { userId, token },
   };
   if (transaction) Object.assign(queryOptions, { transaction });
-  sequelize.query(
+  return sequelize.query(
     'INSERT INTO tokens (user_id, token) VALUES (:userId, :token) ON CONFLICT (user_id) DO UPDATE SET token = EXCLUDED.token',
     queryOptions,
   );
