@@ -1,33 +1,35 @@
 import { Router } from 'express';
-import multer from 'multer';
 import verifyToken from 'middlewares/verifyToken';
+import verifyOptionalToken from 'middlewares/verifyOptionalToken';
+import { uploadFields } from 'middlewares/uploadMiddlewares';
 import postController from 'controllers/post.controller';
+import postValidation from 'validations/post.validation';
 
 const router = Router();
-const upload = multer();
 
-const fieldUploadConfig = [
-  { name: 'image', maxCount: 1 },
-  { name: 'video', maxCount: 1 },
+const addPostUploadConfigs = [
+  { name: 'image' },
+  { name: 'video' },
 ];
 
 router.post(
   '/add_post',
   verifyToken,
-  upload.fields(fieldUploadConfig),
+  uploadFields(addPostUploadConfigs),
   postController.addPost,
+);
+
+router.post(
+  '/get_post',
+  postValidation.getPost,
+  verifyOptionalToken,
+  postController.getPost,
 );
 
 router.post(
   '/delete_post',
   verifyToken,
   postController.deletePost,
-);
-
-router.get(
-  '/get_post',
-  verifyToken,
-  postController.getPost,
 );
 
 router.post(

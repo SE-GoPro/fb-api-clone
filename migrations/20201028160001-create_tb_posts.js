@@ -17,10 +17,7 @@ export function up(queryInterface, Sequelize) {
       onDelete: 'CASCADE',
       allowNull: false,
     },
-    described: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
+    described: Sequelize.STRING,
     created: {
       type: Sequelize.DATE,
       allowNull: false,

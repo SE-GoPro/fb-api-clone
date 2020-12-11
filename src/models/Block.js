@@ -10,6 +10,8 @@ const Block = sequelize.define('Block', {
   timestamps: false,
 });
 
+Block.removeAttribute('id');
+
 Block.belongsTo(User, { foreignKey: 'blocker_id' });
 Block.belongsTo(User, { foreignKey: 'blockee_id' });
 

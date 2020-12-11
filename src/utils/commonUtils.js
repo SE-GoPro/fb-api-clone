@@ -19,3 +19,11 @@ export async function hashPassword(plainPwd) {
 export function compareHash(plainTxt, hash) {
   return compare(plainTxt, hash);
 }
+
+/**
+ *
+ * @param {Date} timestamp
+ */
+export function getUNIXSeconds(timestamp) {
+  return (timestamp.getTime() / 1000).toFixed(0);
+}

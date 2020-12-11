@@ -21,3 +21,7 @@ export function uploadSingle(fieldName) {
 export function uploadMulti(fieldName, maxCount) {
   return upload.array(fieldName, maxCount);
 }
+
+export function uploadFields(configs) {
+  return upload.fields(configs);
+}

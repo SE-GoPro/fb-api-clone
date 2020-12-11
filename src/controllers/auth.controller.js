@@ -15,7 +15,7 @@ import {
   NotAccessError,
   ExceededFileSizeError,
 } from 'common/errors';
-import { compareHash, hashPassword } from 'utils/commonUtils';
+import { compareHash, getUNIXSeconds, hashPassword } from 'utils/commonUtils';
 import constants from 'common/constants';
 import sequelize from 'utils/sequelize';
 import handleResponse from 'utils/handleResponses';
@@ -143,7 +143,7 @@ export default {
     }] = result[1];
 
     return handleResponse(res, {
-      id, username: name, phonenumber, created: (created.getTime() / 1000).toFixed(0), avatar,
+      id, username: name, phonenumber, created: getUNIXSeconds(created), avatar,
     });
   }),
 };

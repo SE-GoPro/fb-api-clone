@@ -193,3 +193,36 @@ export class ExceededFileSizeError extends ServerAPIError {
     });
   }
 }
+
+export class ExceededImageNumberError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.EXCEEDED_IMAGE_NUMBER,
+      message: 'Maximum number of images',
+      ...payload,
+    });
+  }
+}
+
+export class ExceededVideoNumberError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.EXCEEDED_IMAGE_NUMBER,
+      message: 'Maximum number of videos',
+      ...payload,
+    });
+  }
+}
+
+export class NotExistedPost extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 404,
+      code: ResponseCodes.NOT_EXISTED_POST,
+      message: 'Post is not existed',
+      ...payload,
+    });
+  }
+}
