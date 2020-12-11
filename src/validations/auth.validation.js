@@ -45,4 +45,9 @@ export default {
 
     return next();
   },
+
+  changeInfoAfterSignup: (req, res, next) => {
+    checkRequiredFields(req.query, ['username']);
+    return next();
+  },
 };

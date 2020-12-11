@@ -9,11 +9,13 @@ import {
   ExistedUserError,
   InvalidPasswordError,
   NotValidatedUserError,
+  ExceptionError,
 } from 'common/errors';
 import { compareHash, hashPassword } from 'utils/commonUtils';
 import constants from 'common/constants';
 import sequelize from 'utils/sequelize';
 import handleResponse from 'utils/handleResponses';
+import { uploadImage } from 'utils/firebase';
 
 function signToken(credentials) {
   const nonce = crypto.randomBytes(6).toString('hex');
@@ -90,6 +92,31 @@ export default {
     return handleResponse(res, {
       token,
       id: user.id,
+    });
+  }),
+
+  changeInfoAfterSignup: asyncHandler(async (req, res) => {
+    const { userId } = req.credentials;
+    const { username } = req.query;
+    const updates = { name: username };
+
+    const avatarFile = req.file || null;
+    if (avatarFile) {
+      const { fileUrl } = await uploadImage(avatarFile);
+      Object.assign(updates, { avatar_url: fileUrl });
+    }
+    const result = await User.update(updates, {
+      where: { id: userId },
+      returning: true,
+    });
+
+    if (result[0] === 0) throw new ExceptionError();
+    const [{
+      id, name, phonenumber, created, avatar_url: avatar,
+    }] = result[1];
+
+    return handleResponse(res, {
+      id, username: name, phonenumber, created: (created.getTime() / 1000).toFixed(0), avatar,
     });
   }),
 };

@@ -160,3 +160,14 @@ export class BannedPostError extends ServerAPIError {
     });
   }
 }
+
+export class ExceptionError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 500,
+      code: ResponseCodes.EXCEPTION_ERROR,
+      message: 'Exception Error',
+      ...payload,
+    });
+  }
+}

@@ -25,7 +25,14 @@ const ResponseCodes = {
   NOT_VALIDATE_USER: '9995',
   EXISTED_USER: '9996',
   INVALID_TOKEN: '9998',
+  EXCEPTION_ERROR: '9999',
 };
+
+const ValidMimeTypes = [
+  'image/jpeg',
+  'image/png',
+  'video/mp4',
+];
 
 export default {
   MIN_RE_VERIFYING_TIME,
@@ -33,4 +40,5 @@ export default {
   MAX_SEARCH_COUNT,
   MAX_KEY_WORD_COUNT,
   ResponseCodes,
+  ValidMimeTypes,
 };
