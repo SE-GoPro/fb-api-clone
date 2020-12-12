@@ -10,4 +10,14 @@ export default {
     checkRequiredFields(req.query, ['id']);
     return next();
   },
+
+  deletePost: (req, res, next) => {
+    checkRequiredFields(req.query, ['id']);
+    return next();
+  },
+
+  reportPost: (req, res, next) => {
+    checkRequiredFields(req.query, ['id', 'subject', 'details']);
+    return next();
+  },
 };

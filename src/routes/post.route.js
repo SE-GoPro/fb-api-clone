@@ -42,12 +42,14 @@ router.post(
 
 router.post(
   '/delete_post',
+  postValidation.deletePost,
   verifyToken,
   postController.deletePost,
 );
 
 router.post(
   '/report_post',
+  postValidation.reportPost,
   verifyToken,
   postController.reportPost,
 );

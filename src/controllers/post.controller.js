@@ -7,12 +7,13 @@ import Video from 'models/Video';
 import { uploadImage, uploadVideo } from 'utils/firebase';
 import {
   InvalidParamsValueError,
-  BannedPostError,
   ExceededImageNumberError,
   ExceededVideoNumberError,
   ExceptionError,
   NotExistedPostError,
   NotValidatedUserError,
+  NotAccessError,
+  AlreadyDoneActionError,
 } from 'common/errors';
 import constants from 'common/constants';
 import Like from 'models/Like';
@@ -84,9 +85,7 @@ export default {
     const { id } = req.query;
     const { userId, isBlocked } = req.credentials || { userId: null, isBlocked: false };
     const post = await Post.findOne({ where: { id } });
-    if (!post) throw new InvalidParamsValueError();
-
-    if (post.banned) throw new NotExistedPostError();
+    if (!post || post.banned) throw new NotExistedPostError();
 
     const [image, video, like, comment, user, block] = await Promise.all([
       Image.findAll({ where: { post_id: id }, attributes: ['id', 'url'], order: ['index', 'asc'] }),
@@ -239,25 +238,30 @@ export default {
 
   deletePost: asyncHandler(async (req, res) => {
     const { id } = req.query;
-    const post = await Post.findOne({ where: { id } });
+    const { userId, isBlocked } = req.credentials;
+    if (isBlocked) throw new NotAccessError();
 
-    if (!post) throw new InvalidParamsValueError();
-    if (post.banned) throw new BannedPostError();
+    const post = await Post.findOne({ where: { id } });
+    if (!post || post.banned) throw new NotExistedPostError();
+    if (post.user_id !== userId) throw new NotAccessError();
+
     await Post.destroy({ where: { id } });
 
     return handleResponse(res);
   }),
+
   reportPost: asyncHandler(async (req, res) => {
     const { id, subject, details } = req.query;
-    const post = await Post.findOne({ where: { id } });
-    if (!post) throw new InvalidParamsValueError();
-    if (post.banned) throw new BannedPostError();
+    const { userId, isBlocked } = req.credentials;
+    if (isBlocked) throw new NotAccessError();
 
-    const user = await User.findOne({ where: { id: post.user_id } });
+    const post = await Post.findOne({ where: { id } });
+    if (!post) throw new NotExistedPostError();
+    if (post.banned) throw new AlreadyDoneActionError();
 
     await Report.create({
       post_id: id,
-      user_id: user.id,
+      user_id: userId,
       subject,
       details,
     });
