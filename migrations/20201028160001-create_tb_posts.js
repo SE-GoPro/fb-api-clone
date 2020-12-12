@@ -21,12 +21,12 @@ export function up(queryInterface, Sequelize) {
     created: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Date.now(),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     },
     modified: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Date.now(),
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     },
     status: Sequelize.STRING,
     banned: Sequelize.STRING,
