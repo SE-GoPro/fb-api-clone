@@ -14,7 +14,6 @@ import handleResponse from 'utils/handleResponses';
 
 const {
   HASH_TAG_MARK,
-  MAX_SEARCH_COUNT,
   MAX_KEY_WORD_COUNT,
 } = constants;
 
@@ -31,7 +30,7 @@ function searchResultTransform({
   authorName,
   authorAvatar,
 }) {
-  const transformeData = {
+  const transformedData = {
     id,
     described,
     is_like: isLike,
@@ -39,14 +38,14 @@ function searchResultTransform({
     comment,
   };
 
-  if (listImageUrls) Object.assign(transformeData, { image: listImageUrls });
-  Object.assign(transformeData, { video: videoUrl ? { url: videoUrl, thumb: videoThumb } : null });
-  Object.assign(transformeData, {
+  if (listImageUrls) Object.assign(transformedData, { image: listImageUrls });
+  Object.assign(transformedData, { video: videoUrl ? { url: videoUrl, thumb: videoThumb } : null });
+  Object.assign(transformedData, {
     author: {
       id: authorId, name: authorName, avatar: authorAvatar,
     },
   });
-  return transformeData;
+  return transformedData;
 }
 
 export default {
@@ -55,16 +54,17 @@ export default {
     const { userId } = req.credentials;
     const startId = parseInt(index, 10);
     if (!keyword.startsWith(HASH_TAG_MARK)) {
-      await Search.upsertKeyword({
-        userId,
-        keyword,
-      });
+      const oldSearch = await Search.findOne({ where: { keyword: keyword.toLowerCase() } });
+      if (oldSearch) {
+        await Search.update({ created: Date.now() });
+      } else {
+        await Search.create({ user_id: userId, keyword: keyword.toLowerCase() });
+      }
     }
-    const limit = parseInt(count, 10);
     const listPosts = await Post.fuzzySearch({
       keyword,
       startId,
-      count: limit <= MAX_SEARCH_COUNT ? limit : MAX_SEARCH_COUNT,
+      count: parseInt(count, 10),
     });
 
     const transformedPostsList = await Promise.all(listPosts.map(async ({

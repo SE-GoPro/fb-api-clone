@@ -54,4 +54,8 @@ router.post(
   postController.reportPost,
 );
 
+router.post(
+  '/get_list_posts',
+);
+
 export default router;

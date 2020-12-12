@@ -1,4 +1,4 @@
-import { checkRequiredFields } from 'utils/validator';
+import { checkInteger, checkRequiredFields } from 'utils/validator';
 
 export default {
   getPost: (req, res, next) => {
@@ -18,6 +18,16 @@ export default {
 
   reportPost: (req, res, next) => {
     checkRequiredFields(req.query, ['id', 'subject', 'details']);
+    return next();
+  },
+
+  getListPosts: (req, res, next) => {
+    checkRequiredFields(req.query, ['index', 'count']);
+
+    const { index, count } = req.query;
+    checkInteger(index);
+    checkInteger(count);
+
     return next();
   },
 };
