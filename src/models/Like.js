@@ -6,6 +6,7 @@ import sequelize from 'utils/sequelize';
 const Like = sequelize.define('Like', {
   user_id: DataTypes.BIGINT,
   post_id: DataTypes.BIGINT,
+  unlike: DataTypes.BOOLEAN,
 }, {
   tableName: 'likes',
   timestamps: false,
