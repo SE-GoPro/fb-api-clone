@@ -68,6 +68,23 @@ const uploadFile = async (file, fileType) => {
   };
 };
 
+export const deleteFile = async (fileName) => {
+  try {
+    await firebaseStorageBucket.file(fileName).delete();
+  } catch (error) {
+    throw new InvalidFileError();
+  }
+};
+
+export const listFiles = async () => {
+  try {
+    const data = await firebaseStorageBucket.getFiles();
+    return data;
+  } catch (error) {
+    throw new InvalidFileError();
+  }
+};
+
 export const uploadImage = (file) => uploadFile(file, FileType.IMAGE);
 
 export const uploadVideo = (file) => uploadFile(file, FileType.VIDEO);

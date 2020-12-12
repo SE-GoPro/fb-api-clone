@@ -216,7 +216,7 @@ export class ExceededVideoNumberError extends ServerAPIError {
   }
 }
 
-export class NotExistedPost extends ServerAPIError {
+export class NotExistedPostError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
       status: 404,

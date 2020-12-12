@@ -26,6 +26,20 @@ router.post(
   postController.getPost,
 );
 
+const editPostUploadConfigs = [
+  { name: 'image' },
+  { name: 'video' },
+  { name: 'thumb' },
+];
+
+router.post(
+  '/edit_post',
+  postValidation.editPost,
+  verifyToken,
+  uploadFields(editPostUploadConfigs),
+  postController.editPost,
+);
+
 router.post(
   '/delete_post',
   verifyToken,
@@ -36,12 +50,6 @@ router.post(
   '/report_post',
   verifyToken,
   postController.reportPost,
-);
-
-router.post(
-  '/edit_post',
-  verifyToken,
-  postController.editPost,
 );
 
 export default router;

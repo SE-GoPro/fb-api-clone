@@ -11,7 +11,8 @@ import {
   ExceededImageNumberError,
   ExceededVideoNumberError,
   ExceptionError,
-  NotExistedPost,
+  NotExistedPostError,
+  NotValidatedUserError,
 } from 'common/errors';
 import constants from 'common/constants';
 import Like from 'models/Like';
@@ -20,6 +21,7 @@ import Report from 'models/Report';
 import sequelize from 'utils/sequelize';
 import { getUNIXSeconds } from 'utils/commonUtils';
 import Block from 'models/Block';
+import { Op } from 'sequelize';
 
 export default {
   addPost: asyncHandler(async (req, res) => {
@@ -57,7 +59,7 @@ export default {
       postId = newPost.id;
       if (newImages) {
         await Image.bulkCreate(
-          newImages.map(({ fileUrl }) => ({ post_id: postId, url: fileUrl })),
+          newImages.map(({ fileUrl }, index) => ({ post_id: postId, url: fileUrl, index })),
           { transaction: t },
         );
       }
@@ -80,19 +82,21 @@ export default {
 
   getPost: asyncHandler(async (req, res) => {
     const { id } = req.query;
-    const { userId } = req.credentials || { userId: null };
+    const { userId, isBlocked } = req.credentials || { userId: null, isBlocked: false };
     const post = await Post.findOne({ where: { id } });
     if (!post) throw new InvalidParamsValueError();
 
-    if (post.banned) throw new NotExistedPost();
+    if (post.banned) throw new NotExistedPostError();
 
     const [image, video, like, comment, user, block] = await Promise.all([
-      Image.findAll({ where: { post_id: id }, attributes: ['id', 'url'] }),
+      Image.findAll({ where: { post_id: id }, attributes: ['id', 'url'], order: ['index', 'asc'] }),
       Video.findOne({ where: { post_id: id }, attributes: ['url', 'thumb'] }),
       Like.findAndCountAll({ where: { post_id: id } }),
       Comment.count({ where: { post_id: id } }),
       User.findOne({ where: { id: post.user_id } }),
-      Block.findOne({ where: { blocker_id: post.user_id, blockee_id: userId } }),
+      userId && !isBlocked
+        ? Block.findOne({ where: { blocker_id: post.user_id, blockee_id: userId } })
+        : Promise.resolve(null),
     ]);
 
     const {
@@ -128,6 +132,111 @@ export default {
       can_comment: isGetPublicPost ? null : canPostComment,
     });
   }),
+
+  editPost: asyncHandler(async (req, res) => {
+    const {
+      id, described, status, image_del: imageDel, image_sort: imageSort,
+    } = req.query;
+
+    const { isBlocked } = req.credentials || { isBlocked: false };
+    if (isBlocked) throw new NotValidatedUserError();
+
+    const post = await Post.findOne({ where: { id } });
+    if (!post) throw new NotExistedPostError();
+
+    let isUpdated = false;
+
+    if (described || status) {
+      const postData = {};
+      ['described', 'status'].forEach(field => {
+        if (req.query[field]) postData[field] = req.query[field];
+      });
+
+      await Post.update(postData, { where: { id } });
+      isUpdated = true;
+    }
+
+    const [currentPostImages, currentPostVideo] = await Promise.all([
+      Image.findAndCountAll({ where: { post_id: id } }),
+      Video.findOne({ where: { post_id: id } }),
+    ]);
+
+    if (imageDel) {
+      if (imageDel.some(id => parseInt(id, 10) < 0)) {
+        throw new InvalidParamsValueError();
+      }
+      await Image.destroy({ where: { id: { [Op.in]: imageDel } } });
+      isUpdated = true;
+    }
+
+    if (req.files) {
+      const { image, video, thumb } = req.files;
+      if (image && video) throw new InvalidParamsValueError();
+
+      if (image && !currentPostVideo) {
+        const deleteImagesCount = imageDel
+          ? currentPostImages.rows.filter(({ id }) => imageDel.includes(id))
+          : 0;
+
+        const totalImages = currentPostImages.count + image.length - deleteImagesCount;
+        const sortedImages = currentPostImages.rows.sort((a, b) => a.index - b.index);
+
+        if (totalImages >= constants.MAX_IMAGE_NUMBER) {
+          throw new ExceededImageNumberError();
+        }
+
+        const insertIndex = Number.isNaN(parseInt(imageSort, 10)) ? 0 : parseInt(imageSort, 10);
+        if (currentPostImages.count < insertIndex || insertIndex < 0) {
+          throw new InvalidParamsValueError();
+        }
+
+        const newImages = await Promise.all(image.map(file => uploadImage(file)));
+        await sequelize.transaction(async t => {
+          const newSavedImages = await Image.bulkCreate(
+            newImages.map(({ fileUrl }, index) => ({
+              post_id: id, url: fileUrl, index: insertIndex + index,
+            })),
+            { transaction: t, returning: ['id', 'url', 'index'] },
+          );
+
+          const newPostImages = sortedImages
+            .slice(0, insertIndex)
+            .concat(newSavedImages.map(({ id }) => ({ id })))
+            .concat(sortedImages.slice(insertIndex))
+            .filter(({ id }) => !(imageDel || []).includes(id));
+
+          await Promise.all(newPostImages.map(
+            ({ id }, index) => Image.update({ index }, { where: { id }, transaction: t }),
+          ));
+        });
+        isUpdated = true;
+      } else if (video && currentPostImages.count === 0) {
+        if (video.length > constants.MAX_VIDEO_NUMBER) throw new ExceededVideoNumberError();
+        if (video[0]) {
+          const newVideo = await uploadVideo(video[0]);
+          let { thumbUrl } = newVideo;
+          if (thumb) {
+            const newThumb = await uploadImage(thumb[0]);
+            thumbUrl = newThumb.fileUrl;
+          }
+          if (currentPostVideo) {
+            await Video.update(
+              { url: newVideo.fileUrl, thumb: thumbUrl },
+              { where: { post_id: id } },
+            );
+          } else {
+            await Video.create({ url: newVideo.fileUrl, thumb: thumbUrl });
+          }
+          isUpdated = true;
+        }
+      }
+    }
+
+    if (!isUpdated) throw new InvalidParamsValueError();
+
+    return handleResponse(res, { id });
+  }),
+
   deletePost: asyncHandler(async (req, res) => {
     const { id } = req.query;
     const post = await Post.findOne({ where: { id } });
@@ -152,15 +261,6 @@ export default {
       subject,
       details,
     });
-
-    return handleResponse(res);
-  }),
-  editPost: asyncHandler(async (req, res) => {
-    const { id, described, status } = req.query;
-    const post = await Post.findOne({ where: { id } });
-    if (!post) throw new InvalidParamsValueError();
-
-    await Post.update({ described, status }, { where: { id } });
 
     return handleResponse(res);
   }),
