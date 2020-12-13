@@ -12,6 +12,8 @@ const Like = sequelize.define('Like', {
   timestamps: false,
 });
 
+Like.removeAttribute('id');
+
 Like.belongsTo(User, { foreignKey: 'user_id' });
 Like.belongsTo(Post, { foreignKey: 'post_id' });
 
