@@ -8,7 +8,6 @@ import UserFailAction from 'models/UserFailAction';
 import {
   AlreadyDoneActionError,
   ExistedUserError,
-  InvalidPasswordError,
   NotValidatedUserError,
   ExceptionError,
   InvalidParamsValueError,
@@ -49,7 +48,7 @@ export default {
     const user = await User.findOne({ where: { phonenumber } });
 
     if (!user) throw new NotValidatedUserError();
-    if (!await compareHash(password, user.password)) throw new InvalidPasswordError();
+    if (!await compareHash(password, user.password)) throw new InvalidParamsValueError();
     if (!user.is_verified) throw new NotValidatedUserError();
 
     const token = signToken({ userId: user.id, isBlocked: user.is_blocked });
@@ -146,5 +145,19 @@ export default {
     return handleResponse(res, {
       id, username: name, phonenumber, created: getUNIXSeconds(created), avatar,
     });
+  }),
+
+  changePassword: asyncHandler(async (req, res) => {
+    const { password, new_password: newPassword } = req.query;
+
+    const { userId, isBlocked } = req.credentials;
+    if (isBlocked) throw new NotAccessError();
+
+    const user = await User.findOne({ where: { id: userId } });
+    if (!await compareHash(password, user.password)) throw new InvalidParamsValueError();
+    const newPasswordHash = await hashPassword(newPassword);
+
+    await User.update({ password: newPasswordHash }, { where: { id: userId } });
+    return handleResponse(res);
   }),
 };

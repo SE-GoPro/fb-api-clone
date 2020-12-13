@@ -8,6 +8,7 @@ import {
   checkRequiredFields,
   verifyCodeValidator,
   userNameValidator,
+  isSimilarPassword,
 } from 'utils/validator';
 
 export default {
@@ -52,6 +53,20 @@ export default {
     const { username } = req.query;
     userNameValidator(username);
 
+    return next();
+  },
+
+  changePassword: (req, res, next) => {
+    checkRequiredFields(req.query, ['password', 'new_password']);
+
+    const { password, new_password: newPassword } = req.query;
+    passwordValidator(password);
+    passwordValidator(newPassword);
+
+    if (
+      password === newPassword
+      || isSimilarPassword(password, newPassword)
+    ) throw new InvalidParamsValueError();
     return next();
   },
 };

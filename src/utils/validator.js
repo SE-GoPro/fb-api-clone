@@ -1,4 +1,5 @@
 import { URL } from 'url';
+import lcs from 'node-lcs';
 import {
   InvalidParamsTypeError,
   InvalidParamsValueError,
@@ -51,4 +52,13 @@ export function isURL(str) {
   } catch (e) {
     return false;
   }
+}
+
+export function isSimilarPassword(oldPwd, newPwd) {
+  const { length, sequence } = lcs(oldPwd, newPwd);
+  const matchSeqs = newPwd.match(RegExp(sequence, 'g'));
+  if (length !== 0 && matchSeqs && matchSeqs.length === 1) {
+    return length / oldPwd.length >= 0.8;
+  }
+  return false;
 }

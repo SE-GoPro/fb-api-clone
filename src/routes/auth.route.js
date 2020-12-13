@@ -45,4 +45,11 @@ router.post(
   authController.changeInfoAfterSignup,
 );
 
+router.post(
+  '/change_password',
+  authValidation.changePassword,
+  verifyToken,
+  authController.changePassword,
+);
+
 export default router;

@@ -121,9 +121,9 @@ export default {
       image: image.length > 0 ? image : null,
       video: video || null,
       author: {
-        id: user?.id,
-        name: user?.name,
-        avatar: user?.avatar_url,
+        id: user ? user.id : null,
+        name: user ? user.name : null,
+        avatar: user ? user.avatar_url : null,
       },
       status,
       is_blocked: block ? '1' : '0',

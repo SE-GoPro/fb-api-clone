@@ -14,7 +14,7 @@ async function getCommentsList(id, count, index, userId) {
   const comments = await Comment.findAll({
     where: { post_id: id },
     attributes: ['id', 'comment', getTimeField('created'), 'user_id'],
-    order: [['created', 'DESC']],
+    order: [['created', 'ASC']],
     limit: count,
     offset: index,
   });
