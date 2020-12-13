@@ -33,12 +33,12 @@ function searchResultTransform({
   const transformedData = {
     id,
     described,
-    is_like: isLike,
-    like,
-    comment,
+    is_like: isLike ? '1' : '0',
+    like: String(like),
+    comment: String(comment),
   };
 
-  if (listImageUrls) Object.assign(transformedData, { image: listImageUrls });
+  Object.assign(transformedData, { image: listImageUrls });
   Object.assign(transformedData, { video: videoUrl ? { url: videoUrl, thumb: videoThumb } : null });
   Object.assign(transformedData, {
     author: {
@@ -56,7 +56,7 @@ export default {
     if (!keyword.startsWith(HASH_TAG_MARK)) {
       const oldSearch = await Search.findOne({ where: { keyword: keyword.toLowerCase() } });
       if (oldSearch) {
-        await Search.update({ created: Date.now() });
+        await Search.update({ created: Date.now() }, { where: { id: oldSearch.id } });
       } else {
         await Search.create({ user_id: userId, keyword: keyword.toLowerCase() });
       }
@@ -74,16 +74,20 @@ export default {
       video_url: videoUrl,
       video_thumb: videoThumb,
     }) => {
-      const listImageUrls = await Image.findAll({ where: { post_id: id }, attributes: ['url'] });
-      const postLikes = await Like.findAll({ where: { post_id: id }, attributes: ['user_id'] });
-      const postCommentCounts = await Comment.count({ where: { post_id: id } });
-      const { name: authorName, avatar_url: authorAvatar } = await User.findOne({ where: { id: authorId }, attributes: ['name', 'avatar_url'] });
+      const [
+        listImageUrls, postLikes, postCommentCounts, { name: authorName, avatar_url: authorAvatar },
+      ] = await Promise.all([
+        Image.findAll({ where: { post_id: id }, attributes: ['url'], order: [['index', 'asc']] }),
+        Like.findAll({ where: { post_id: id, unlike: false }, attributes: ['user_id'] }),
+        Comment.count({ where: { post_id: id } }),
+        User.findOne({ where: { id: authorId }, attributes: ['name', 'avatar_url'] }),
+      ]);
       return searchResultTransform({
         id,
         described,
         videoUrl,
         videoThumb,
-        listImageUrls,
+        listImageUrls: listImageUrls.length > 0 ? listImageUrls : null,
         like: postLikes.length,
         comment: postCommentCounts,
         isLike: !!postLikes.find(postLike => postLike.user_id === userId),

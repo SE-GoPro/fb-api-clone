@@ -7,16 +7,21 @@ import Post from 'models/Post';
 import User from 'models/User';
 import { Op } from 'sequelize';
 import asyncHandler from 'utils/asyncHandler';
+import { getUNIXSeconds } from 'utils/commonUtils';
 import handleResponse from 'utils/handleResponses';
-import sequelize, { getTimeField } from 'utils/sequelize';
 
 async function getCommentsList(id, count, index, userId) {
   const comments = await Comment.findAll({
     where: { post_id: id },
-    attributes: ['id', 'comment', getTimeField('created'), 'user_id'],
-    order: [['created', 'ASC']],
+    attributes: ['id', 'comment', 'created', 'user_id'],
+    order: [['created', 'asc']],
     limit: count,
     offset: index,
+    include: {
+      model: User,
+      attributes: ['id', 'name', 'avatar_url'],
+      required: false,
+    },
   });
 
   let blockIds = [];
@@ -35,17 +40,13 @@ async function getCommentsList(id, count, index, userId) {
     }) => (blockerId === userId ? blockeeId : blockerId));
   }
 
-  const commentWithPosters = await Promise.all(
-    comments
-      .map(async ({ user_id: userId, ...comment }) => {
-        if (blockIds.includes(userId)) return null;
-        const poster = await User.findOne({ where: { id: userId }, attributes: ['id', 'name', sequelize.literal('avatar_url as avatar')] });
-
-        return { poster, ...comment };
-      })
-      .filter(comment => comment),
-  );
-  return commentWithPosters;
+  return comments
+    .map(({
+      User: poster, id, comment, created,
+    }) => (blockIds.includes(poster.id) ? null : {
+      id, comment, created: getUNIXSeconds(created), poster,
+    }))
+    .filter(comment => comment);
 }
 
 export default {

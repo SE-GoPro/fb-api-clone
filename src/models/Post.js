@@ -21,7 +21,7 @@ Post.fuzzySearch = ({ keyword, startId, count }) => sequelize.query(
   `SELECT posts.id, described, posts.user_id, videos.url as video_url, videos.thumb as video_thumb
   FROM posts
   LEFT JOIN videos
-  ON posts.id = videos.id
+  ON posts.id = videos.post_id
   WHERE posts.id >= :startId
   AND :keyword % ANY(STRING_TO_ARRAY(posts.described, ' '))
   LIMIT :count`,

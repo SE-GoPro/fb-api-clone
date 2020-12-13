@@ -13,8 +13,8 @@ const sequelize = new Sequelize(config.url, {
   },
 });
 
-export function getTimeField(fieldName) {
-  return sequelize.Sequelize.literal(`(EXTRACT(EPOCH FROM ${fieldName}))::BIGINT AS ${fieldName}`);
+export function getTimeField(fieldName, returnFieldName) {
+  return sequelize.Sequelize.literal(`(EXTRACT(EPOCH FROM ${fieldName}))::BIGINT AS ${returnFieldName || fieldName}`);
 }
 
 export default sequelize;
