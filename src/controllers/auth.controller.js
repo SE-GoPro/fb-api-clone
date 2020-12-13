@@ -84,9 +84,10 @@ export default {
 
   checkVerifyCode: asyncHandler(async (req, res) => {
     const { phonenumber, code_verify: verifyCode } = req.query;
-    const user = await User.findOne({ where: { phonenumber, verify_code: verifyCode } });
+    const user = await User.findOne({ where: { phonenumber } });
 
     if (!user) throw new NotValidatedUserError();
+    if (verifyCode !== user.verify_code) throw new InvalidParamsValueError();
     if (user.is_verified) throw new ExistedUserError();
     const token = signToken({ user_id: user.id, isBlocked: user.is_blocked });
 
