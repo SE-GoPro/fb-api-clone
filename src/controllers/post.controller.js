@@ -84,22 +84,35 @@ export default {
   getPost: asyncHandler(async (req, res) => {
     const { id } = req.query;
     const { userId, isBlocked } = req.credentials || { userId: null, isBlocked: false };
-    const post = await Post.findOne({ where: { id } });
+    const post = await Post.findOne({
+      where: { id },
+      include: {
+        model: User,
+        attributes: ['id', 'name', 'avatar_url'],
+        required: false,
+      },
+    });
     if (!post || post.banned) throw new NotExistedPostError();
 
-    const [image, video, like, comment, user, block] = await Promise.all([
-      Image.findAll({ where: { post_id: id }, attributes: ['id', 'url'], order: ['index', 'asc'] }),
+    const [image, video, like, comment, block] = await Promise.all([
+      Image.findAll({ where: { post_id: id }, attributes: ['id', 'url'], order: [['index', 'asc']] }),
       Video.findOne({ where: { post_id: id }, attributes: ['url', 'thumb'] }),
       Like.findAndCountAll({ where: { post_id: id } }),
       Comment.count({ where: { post_id: id } }),
-      User.findOne({ where: { id: post.user_id } }),
       userId && !isBlocked
         ? Block.findOne({ where: { blocker_id: post.user_id, blockee_id: userId } })
         : Promise.resolve(null),
     ]);
 
     const {
-      id: postId, described, created, modified, status, banned, can_comment: canComment,
+      id: postId,
+      described,
+      created,
+      modified,
+      status,
+      banned,
+      can_comment: canComment,
+      User: { id: authorId, name, avatar_url: avatar },
     } = post;
 
     const isGetPublicPost = !userId;
@@ -121,9 +134,9 @@ export default {
       image: image.length > 0 ? image : null,
       video: video || null,
       author: {
-        id: user ? user.id : null,
-        name: user ? user.name : null,
-        avatar: user ? user.avatar_url : null,
+        id: authorId,
+        name,
+        avatar,
       },
       status,
       is_blocked: block ? '1' : '0',
@@ -146,7 +159,7 @@ export default {
     let isUpdated = false;
 
     if (described || status) {
-      const postData = {};
+      const postData = { modified: Date.now() };
       ['described', 'status'].forEach(field => {
         if (req.query[field]) postData[field] = req.query[field];
       });

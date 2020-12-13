@@ -8,7 +8,7 @@ const sequelize = new Sequelize(config.url, {
   logging: false,
   dialectOptions: config.dialectOptions,
   query: {
-    raw: true,
+    // raw: true,
     logging: false,
   },
 });
