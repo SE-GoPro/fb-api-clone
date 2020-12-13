@@ -2,7 +2,7 @@ import firebaseAdmin from 'firebase-admin';
 import mime from 'mime-types';
 import shortid from 'shortid';
 import { v4 as uuidv4 } from 'uuid';
-import { InvalidFileError } from 'common/errors';
+import { ExceptionError, UploadFailedError } from 'common/errors';
 
 const serviceAccount = require('secrets/fb-api-clone-gopro-firebase-adminsdk-3cyy6-cdf5e87374.json');
 
@@ -40,7 +40,7 @@ const uploadFile = async (file, fileType) => {
     hasError = true;
   }
   if (hasError) {
-    throw new InvalidFileError();
+    throw new UploadFailedError();
   }
   const timestamp = Date.now();
   const uniqueId = shortid.generate();
@@ -57,7 +57,7 @@ const uploadFile = async (file, fileType) => {
         },
       });
   } catch (error) {
-    throw new InvalidFileError();
+    throw new UploadFailedError();
   }
   const fileUrl = getFileUrl(fileName, token);
   const thumbUrl = getFileUrl(getThumbnailFileName(fileName), token);
@@ -72,7 +72,7 @@ export const deleteFile = async (fileName) => {
   try {
     await firebaseStorageBucket.file(fileName).delete();
   } catch (error) {
-    throw new InvalidFileError();
+    throw new ExceptionError();
   }
 };
 
@@ -81,7 +81,7 @@ export const listFiles = async () => {
     const data = await firebaseStorageBucket.getFiles();
     return data;
   } catch (error) {
-    throw new InvalidFileError();
+    throw new ExceptionError();
   }
 };
 

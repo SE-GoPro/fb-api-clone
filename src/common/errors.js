@@ -51,6 +51,39 @@ export class NotVerifiedUserError extends ServerAPIError {
 }
 
 // Spec errors
+export class NotExistedPostError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 404,
+      code: ResponseCodes.NOT_EXISTED_POST,
+      message: 'Post is not existed',
+      ...payload,
+    });
+  }
+}
+
+export class IncorrectVerifyCode extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.INCORECT_VERIFY_CODE,
+      message: 'Code verify is incorrect',
+      ...payload,
+    });
+  }
+}
+
+export class NoDataError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 204,
+      code: ResponseCodes.NO_DATA,
+      message: 'No Data or end of list data',
+      ...payload,
+    });
+  }
+}
+
 export class NotValidatedUserError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
@@ -67,7 +100,18 @@ export class ExistedUserError extends ServerAPIError {
     super({
       status: 409,
       code: ResponseCodes.EXISTED_USER,
-      message: 'User already exists',
+      message: 'User existed',
+      ...payload,
+    });
+  }
+}
+
+export class InvalidMethodError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.INVALID_METHOD,
+      message: 'Method is invalid',
       ...payload,
     });
   }
@@ -79,6 +123,17 @@ export class InvalidTokenError extends ServerAPIError {
       status: 401,
       code: ResponseCodes.INVALID_TOKEN,
       message: 'Token is invalid',
+      ...payload,
+    });
+  }
+}
+
+export class ExceptionError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 500,
+      code: ResponseCodes.EXCEPTION_ERROR,
+      message: 'Exception Error',
       ...payload,
     });
   }
@@ -100,7 +155,7 @@ export class InvalidParamsTypeError extends ServerAPIError {
     super({
       status: 400,
       code: ResponseCodes.INVALID_PARAM_TYPE,
-      message: 'Parameters type is invalid',
+      message: 'Parameter type is invalid',
       data: payload.data,
     });
   }
@@ -111,74 +166,8 @@ export class InvalidParamsValueError extends ServerAPIError {
     super({
       status: 400,
       code: ResponseCodes.INVALID_PARAM_VALUE,
-      message: 'Parameters value is invalid',
+      message: 'Parameter value is invalid',
       data: payload.data,
-    });
-  }
-}
-
-export class AlreadyDoneActionError extends ServerAPIError {
-  constructor({ ...payload }) {
-    super({
-      status: 409,
-      code: ResponseCodes.ALREADY_DONE_ACTION,
-      message: 'action has been done previously by this user',
-      ...payload,
-    });
-  }
-}
-
-export class InvalidFileError extends ServerAPIError {
-  constructor({ ...payload }) {
-    super({
-      status: 400,
-      code: ResponseCodes.INVALID_PARAM_VALUE,
-      message: 'Invalid file',
-      ...payload,
-    });
-  }
-}
-
-export class NoDataError extends ServerAPIError {
-  constructor({ ...payload }) {
-    super({
-      status: 204,
-      code: ResponseCodes.NO_DATA,
-      message: 'No Data or end of list data',
-      ...payload,
-    });
-  }
-}
-
-export class BannedPostError extends ServerAPIError {
-  constructor({ ...payload }) {
-    super({
-      status: 400,
-      code: ResponseCodes.BANNED_POST,
-      message: 'Post is already banned',
-      ...payload,
-    });
-  }
-}
-
-export class ExceptionError extends ServerAPIError {
-  constructor({ ...payload }) {
-    super({
-      status: 500,
-      code: ResponseCodes.EXCEPTION_ERROR,
-      message: 'Exception Error',
-      ...payload,
-    });
-  }
-}
-
-export class NotAccessError extends ServerAPIError {
-  constructor({ ...payload }) {
-    super({
-      status: 403,
-      code: ResponseCodes.NOT_ACCESS,
-      message: 'Not access',
-      ...payload,
     });
   }
 }
@@ -189,6 +178,17 @@ export class ExceededFileSizeError extends ServerAPIError {
       status: 400,
       code: ResponseCodes.EXCEEDED_FILE_SIZE,
       message: 'File size is too big',
+      ...payload,
+    });
+  }
+}
+
+export class UploadFailedError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.UPLOAD_FAILED,
+      message: 'Upload File Failed!',
       ...payload,
     });
   }
@@ -205,24 +205,79 @@ export class ExceededImageNumberError extends ServerAPIError {
   }
 }
 
-export class ExceededVideoNumberError extends ServerAPIError {
+export class NotAccessError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
-      status: 400,
-      code: ResponseCodes.EXCEEDED_IMAGE_NUMBER,
-      message: 'Maximum number of videos',
+      status: 403,
+      code: ResponseCodes.NOT_ACCESS,
+      message: 'Not access',
       ...payload,
     });
   }
 }
 
-export class NotExistedPostError extends ServerAPIError {
+export class AlreadyDoneActionError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
-      status: 404,
-      code: ResponseCodes.NOT_EXISTED_POST,
-      message: 'Post is not existed',
+      status: 409,
+      code: ResponseCodes.ALREADY_DONE_ACTION,
+      message: 'action has been done previously by this user',
       ...payload,
     });
   }
 }
+
+export class UnpublishablePostError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.UNPUBLISHABLE_POST,
+      message: 'Could not publish this post',
+      ...payload,
+    });
+  }
+}
+
+export class LimitedPostAccessError extends ServerAPIError {
+  constructor({ ...payload }) {
+    super({
+      status: 400,
+      code: ResponseCodes.LIMITED_POST_ACCESS,
+      message: 'Limited access',
+      ...payload,
+    });
+  }
+}
+
+// export class InvalidFileError extends ServerAPIError {
+//   constructor({ ...payload }) {
+//     super({
+//       status: 400,
+//       code: ResponseCodes.INVALID_PARAM_VALUE,
+//       message: 'Invalid file',
+//       ...payload,
+//     });
+//   }
+// }
+
+// export class BannedPostError extends ServerAPIError {
+//   constructor({ ...payload }) {
+//     super({
+//       status: 400,
+//       code: ResponseCodes.BANNED_POST,
+//       message: 'Post is already banned',
+//       ...payload,
+//     });
+//   }
+// }
+
+// export class ExceededVideoNumberError extends ServerAPIError {
+//   constructor({ ...payload }) {
+//     super({
+//       status: 400,
+//       code: ResponseCodes.EXCEEDED_IMAGE_NUMBER,
+//       message: 'Maximum number of videos',
+//       ...payload,
+//     });
+//   }
+// }

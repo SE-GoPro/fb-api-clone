@@ -8,7 +8,6 @@ import { uploadImage, uploadVideo } from 'utils/firebase';
 import {
   InvalidParamsValueError,
   ExceededImageNumberError,
-  ExceededVideoNumberError,
   ExceptionError,
   NotExistedPostError,
   NotValidatedUserError,
@@ -46,12 +45,9 @@ export default {
         if (image.length > constants.MAX_IMAGE_NUMBER) throw new ExceededImageNumberError();
         const uploadedImages = await Promise.all(image.map(file => uploadImage(file)));
         newImages = uploadedImages;
-      } else {
-        if (video.length > constants.MAX_VIDEO_NUMBER) throw new ExceededVideoNumberError();
-        if (video[0]) {
-          const uploadedVideo = await uploadVideo(video[0]);
-          newVideo = uploadedVideo;
-        }
+      } else if (video[0]) {
+        const uploadedVideo = await uploadVideo(video[0]);
+        newVideo = uploadedVideo;
       }
     }
 
@@ -223,7 +219,6 @@ export default {
         });
         isUpdated = true;
       } else if (video && currentPostImages.count === 0) {
-        if (video.length > constants.MAX_VIDEO_NUMBER) throw new ExceededVideoNumberError();
         if (video[0]) {
           const newVideo = await uploadVideo(video[0]);
           let { thumbUrl } = newVideo;

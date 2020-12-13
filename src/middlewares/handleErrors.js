@@ -1,5 +1,5 @@
 import { ServerAPIError } from 'common/errors';
-import { ValidationError } from 'sequelize';
+import { ValidationError, ConnectionError } from 'sequelize';
 import constants from 'common/constants';
 
 const { ResponseCodes } = constants;
@@ -19,11 +19,17 @@ export function handleAPIError(err, req, res, next) {
         message: 'Parameters value is invalid',
         data: null,
       });
+    } else if (err instanceof ConnectionError) {
+      res.status(503).json({
+        code: ResponseCodes.DB_CONNECTION_ERROR,
+        message: 'Can not connect to DB',
+        data: null,
+      });
     } else {
       console.log(err);
       res.status(500).json({
-        code: ResponseCodes.INTERNAL_SERVER_ERROR,
-        message: 'Internal Server Error',
+        code: ResponseCodes.UNKNOWN_ERROR,
+        message: 'Unknown error',
         data: null,
       });
     }
