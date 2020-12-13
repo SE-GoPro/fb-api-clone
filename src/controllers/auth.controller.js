@@ -50,7 +50,7 @@ export default {
 
     if (!user) throw new NotValidatedUserError();
     if (!await compareHash(password, user.password)) throw new InvalidPasswordError();
-    // if (!user.is_verified) throw new NotValidatedUserError();
+    if (!user.is_verified) throw new NotValidatedUserError();
 
     const token = signToken({ userId: user.id, isBlocked: user.is_blocked });
 
