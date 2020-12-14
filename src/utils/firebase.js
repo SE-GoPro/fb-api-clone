@@ -2,7 +2,7 @@ import firebaseAdmin from 'firebase-admin';
 import mime from 'mime-types';
 import shortid from 'shortid';
 import { v4 as uuidv4 } from 'uuid';
-import { ExceptionError, UploadFailedError } from 'common/errors';
+import { ExceptionError, UploadFailedError, ExceededFileSizeError } from 'common/errors';
 
 const serviceAccount = require('secrets/fb-api-clone-gopro-firebase-adminsdk-3cyy6-cdf5e87374.json');
 
@@ -10,10 +10,12 @@ const FileType = {
   IMAGE: {
     extensions: ['jpg', 'jpeg', 'png'],
     prefix: 'img',
+    maxSize: 4194304,
   },
   VIDEO: {
     extensions: ['mp4'],
     prefix: 'vid',
+    maxSize: 10485760,
   },
 };
 
@@ -30,6 +32,8 @@ export const getThumbnailFileName = (fileName) => `thumb_${fileName}.png`;
 
 const uploadFile = async (file, fileType) => {
   let hasError = false;
+  if (file.size > fileType.maxSize) throw new ExceededFileSizeError();
+
   const fileExt = mime.extension(file.mimetype);
   if (!fileExt || !fileType.extensions.includes(fileExt)) {
     console.error('Invalid fileExt: ', fileExt);

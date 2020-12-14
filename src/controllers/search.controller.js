@@ -77,7 +77,7 @@ export default {
       const [
         listImageUrls, postLikes, postCommentCounts, { name: authorName, avatar_url: authorAvatar },
       ] = await Promise.all([
-        Image.findAll({ where: { post_id: id }, attributes: ['url'], order: [['index', 'asc']] }),
+        Image.findAll({ where: { post_id: id }, attributes: ['id', 'url'], order: [['index', 'asc']] }),
         Like.findAll({ where: { post_id: id, unlike: false }, attributes: ['user_id'] }),
         Comment.count({ where: { post_id: id } }),
         User.findOne({ where: { id: authorId }, attributes: ['name', 'avatar_url'] }),
@@ -96,6 +96,8 @@ export default {
         authorAvatar,
       });
     }));
+
+    if (transformedPostsList.length === 0) throw new NoDataError();
 
     return handleResponse(res, transformedPostsList);
   }),

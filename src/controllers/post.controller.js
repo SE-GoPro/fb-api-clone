@@ -13,6 +13,7 @@ import {
   NotValidatedUserError,
   NotAccessError,
   AlreadyDoneActionError,
+  UploadFailedError,
 } from 'common/errors';
 import constants from 'common/constants';
 import Like from 'models/Like';
@@ -28,26 +29,26 @@ export default {
     const { userId } = req.credentials;
     const { described, status } = req.query;
 
+    if (!described && !req.files) throw InvalidParamsValueError();
+
+    let postId = null;
+    let newImages;
+    let newVideo;
     const postData = {
       user_id: userId,
       described: described || null,
       status: status || null,
     };
 
-    let postId = null;
-    let newImages;
-    let newVideo;
-
     if (req.files) {
       const { image, video } = req.files;
       if (image && video) throw new InvalidParamsValueError();
       if (image) {
         if (image.length > constants.MAX_IMAGE_NUMBER) throw new ExceededImageNumberError();
-        const uploadedImages = await Promise.all(image.map(file => uploadImage(file)));
-        newImages = uploadedImages;
-      } else if (video[0]) {
-        const uploadedVideo = await uploadVideo(video[0]);
-        newVideo = uploadedVideo;
+        newImages = await Promise.all(image.map(file => uploadImage(file)));
+      } else if (video) {
+        if (video.length !== constants.MAX_VIDEO_NUMBER) throw new UploadFailedError();
+        newVideo = await uploadVideo(video[0]);
       }
     }
 
@@ -80,6 +81,8 @@ export default {
   getPost: asyncHandler(async (req, res) => {
     const { id } = req.query;
     const { userId, isBlocked } = req.credentials || { userId: null, isBlocked: false };
+    if (userId && isBlocked) throw new NotAccessError();
+
     const post = await Post.findOne({
       where: { id },
       include: {
@@ -169,6 +172,10 @@ export default {
       Video.findOne({ where: { post_id: id } }),
     ]);
 
+    const deleteImagesCount = imageDel
+      ? currentPostImages.rows.filter(({ id }) => imageDel.includes(id))
+      : 0;
+
     if (imageDel) {
       if (imageDel.some(id => parseInt(id, 10) < 0)) {
         throw new InvalidParamsValueError();
@@ -181,11 +188,8 @@ export default {
       const { image, video, thumb } = req.files;
       if (image && video) throw new InvalidParamsValueError();
 
-      if (image && !currentPostVideo) {
-        const deleteImagesCount = imageDel
-          ? currentPostImages.rows.filter(({ id }) => imageDel.includes(id))
-          : 0;
-
+      if (image) {
+        if (currentPostVideo) throw new InvalidParamsValueError();
         const totalImages = currentPostImages.count + image.length - deleteImagesCount;
         const sortedImages = currentPostImages.rows.sort((a, b) => a.index - b.index);
 
@@ -218,24 +222,20 @@ export default {
           ));
         });
         isUpdated = true;
-      } else if (video && currentPostImages.count === 0) {
-        if (video[0]) {
-          const newVideo = await uploadVideo(video[0]);
-          let { thumbUrl } = newVideo;
-          if (thumb) {
-            const newThumb = await uploadImage(thumb[0]);
-            thumbUrl = newThumb.fileUrl;
-          }
-          if (currentPostVideo) {
-            await Video.update(
-              { url: newVideo.fileUrl, thumb: thumbUrl },
-              { where: { post_id: id } },
-            );
-          } else {
-            await Video.create({ url: newVideo.fileUrl, thumb: thumbUrl });
-          }
-          isUpdated = true;
+      } else if (video) {
+        if (currentPostImages.count > deleteImagesCount
+          || video.length !== constants.MAX_VIDEO_NUMBER
+          || currentPostVideo
+        ) throw new InvalidParamsValueError();
+        const newVideo = await uploadVideo(video[0]);
+        let { thumbUrl } = newVideo;
+        if (thumb) {
+          const newThumb = await uploadImage(thumb[0]);
+          thumbUrl = newThumb.fileUrl;
         }
+
+        await Video.create({ url: newVideo.fileUrl, thumb: thumbUrl });
+        isUpdated = true;
       }
     }
 
