@@ -17,15 +17,18 @@ const Post = sequelize.define('Post', {
 
 Post.belongsTo(User, { foreignKey: 'user_id' });
 
-Post.fuzzySearch = ({ keyword, startId, count }) => sequelize.query(
+Post.fuzzySearch = ({ keyword, index, count }) => sequelize.query(
   `SELECT posts.id, described, posts.user_id, videos.url as video_url, videos.thumb as video_thumb
   FROM posts
   LEFT JOIN videos
   ON posts.id = videos.post_id
-  WHERE posts.id >= :startId
-  AND :keyword % ANY(STRING_TO_ARRAY(posts.described, ' '))
-  LIMIT :count`,
-  { type: QueryTypes.SELECT, replacements: { keyword, startId: startId > 0 ? startId : 0, count } },
+  WHERE :keyword % ANY(STRING_TO_ARRAY(posts.described, ' '))
+  LIMIT :count
+  OFFSET :index`,
+  {
+    type: QueryTypes.SELECT,
+    replacements: { keyword, index: index > 0 ? index : 0, count: count > 0 ? count : 0 },
+  },
 );
 
 export default Post;

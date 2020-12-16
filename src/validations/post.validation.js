@@ -27,6 +27,7 @@ export default {
     const { index, count } = req.query;
     checkInteger(index);
     checkInteger(count);
+    if (req.query.last_id) checkInteger(req.query.last_id);
 
     return next();
   },

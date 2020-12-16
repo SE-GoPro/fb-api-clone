@@ -50,9 +50,10 @@ function searchResultTransform({
 
 export default {
   search: asyncHandler(async (req, res) => {
-    const { keyword, index, count } = req.query;
+    const { keyword } = req.query;
     const { userId } = req.credentials;
-    const startId = parseInt(index, 10);
+    const index = parseInt(req.query.index, 10);
+    const count = parseInt(req.query.count, 10);
     if (!keyword.startsWith(HASH_TAG_MARK)) {
       const oldSearch = await Search.findOne({ where: { keyword: keyword.toLowerCase() } });
       if (oldSearch) {
@@ -63,8 +64,8 @@ export default {
     }
     const listPosts = await Post.fuzzySearch({
       keyword,
-      startId,
-      count: parseInt(count, 10),
+      index,
+      count,
     });
 
     const transformedPostsList = await Promise.all(listPosts.map(async ({

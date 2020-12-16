@@ -56,6 +56,9 @@ router.post(
 
 router.post(
   '/get_list_posts',
+  postValidation.getListPosts,
+  verifyOptionalToken,
+  postController.getListPosts,
 );
 
 export default router;

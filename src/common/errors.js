@@ -76,7 +76,7 @@ export class IncorrectVerifyCode extends ServerAPIError {
 export class NoDataError extends ServerAPIError {
   constructor({ ...payload }) {
     super({
-      status: 204,
+      status: 404,
       code: ResponseCodes.NO_DATA,
       message: 'No Data or end of list data',
       ...payload,
