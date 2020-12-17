@@ -7,14 +7,12 @@ import Search from 'models/Search';
 import Like from 'models/Like';
 import Comment from 'models/Comment';
 import User from 'models/User';
-import { getTimeField } from 'utils/sequelize';
-import { Op } from 'sequelize';
-import { NoDataError } from 'common/errors';
+import { NoDataError, NotAccessError } from 'common/errors';
 import handleResponse from 'utils/handleResponses';
+import { getUNIXSeconds } from 'utils/commonUtils';
 
 const {
   HASH_TAG_MARK,
-  MAX_KEY_WORD_COUNT,
 } = constants;
 
 function searchResultTransform({
@@ -51,9 +49,12 @@ function searchResultTransform({
 export default {
   search: asyncHandler(async (req, res) => {
     const { keyword } = req.query;
-    const { userId } = req.credentials;
+    const { userId, isBlocked } = req.credentials;
     const index = parseInt(req.query.index, 10);
     const count = parseInt(req.query.count, 10);
+
+    if (isBlocked) throw new NotAccessError();
+
     if (!keyword.startsWith(HASH_TAG_MARK)) {
       const oldSearch = await Search.findOne({ where: { keyword: keyword.toLowerCase() } });
       if (oldSearch) {
@@ -105,15 +106,25 @@ export default {
 
   getSavedSearch: asyncHandler(async (req, res) => {
     const { index, count } = req.query;
-    const { userId } = req.credentials;
+    const { userId, isBlocked } = req.credentials;
 
+    if (isBlocked) throw new NotAccessError();
+
+    const offset = parseInt(index, 10);
     const limit = parseInt(count, 10);
-    const listKeywords = await Search.findAll({
-      where: { user_id: userId, id: { [Op.gte]: parseInt(index, 10) } },
-      attributes: ['id', 'keyword', getTimeField('created')],
+    const keywords = await Search.findAll({
+      where: { user_id: userId },
+      attributes: ['id', 'keyword', 'created'],
       order: [['created', 'DESC']],
-      limit: limit <= MAX_KEY_WORD_COUNT ? limit : MAX_KEY_WORD_COUNT,
+      offset,
+      limit,
     });
+
+    if (keywords.length === 0) throw new NoDataError();
+
+    const listKeywords = keywords.map(({
+      id, keyword, created,
+    }) => ({ id, keyword, created: getUNIXSeconds(created) }));
 
     return handleResponse(res, listKeywords);
   }),

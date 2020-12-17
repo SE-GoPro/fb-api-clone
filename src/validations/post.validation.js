@@ -1,3 +1,4 @@
+import { InvalidParamsValueError } from 'common/errors';
 import { checkInteger, checkRequiredFields } from 'utils/validator';
 
 export default {
@@ -29,6 +30,17 @@ export default {
     checkInteger(count);
     if (req.query.last_id) checkInteger(req.query.last_id);
 
+    return next();
+  },
+
+  checkNewItem: (req, res, next) => {
+    checkRequiredFields(req.query, ['last_id']);
+    checkInteger(req.query.last_id);
+    if (req.query.category_id) {
+      checkInteger(req.query.category_id);
+      const categoryId = parseInt(req.query.category_id, 10);
+      if (categoryId < 0 || categoryId > 3) throw new InvalidParamsValueError();
+    }
     return next();
   },
 };

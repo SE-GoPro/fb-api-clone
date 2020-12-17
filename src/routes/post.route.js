@@ -61,4 +61,10 @@ router.post(
   postController.getListPosts,
 );
 
+router.post(
+  '/check_new_item',
+  postValidation.checkNewItem,
+  postController.checkNewItem,
+);
+
 export default router;

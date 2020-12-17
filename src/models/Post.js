@@ -10,6 +10,7 @@ const Post = sequelize.define('Post', {
   status: DataTypes.STRING,
   banned: DataTypes.STRING,
   can_comment: DataTypes.BOOLEAN,
+  category_id: DataTypes.INTEGER,
 }, {
   tableName: 'posts',
   timestamps: false,

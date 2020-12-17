@@ -368,4 +368,20 @@ export default {
       last_id: String(lastId || posts[0].id),
     });
   }),
+
+  checkNewItem: asyncHandler(async (req, res) => {
+    const lastId = parseInt(req.query.last_id, 10);
+    const categoryId = req.query.category_id ? parseInt(req.query.category_id, 10) : 0;
+
+    const conditions = {
+      id: {
+        [Op.gt]: lastId,
+      },
+    };
+    if (categoryId !== 0) Object.assign(conditions, { category_id: categoryId });
+
+    const countNewItems = await Post.count({ where: conditions });
+
+    return handleResponse(res, { new_items: String(countNewItems) });
+  }),
 };
