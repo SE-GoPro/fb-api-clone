@@ -45,6 +45,12 @@ export function checkInteger(value) {
   if (!Number.isInteger(parsedValue) || parsedValue < 0) throw new InvalidParamsTypeError();
 }
 
+export function checkBit(value) {
+  const parsedValue = parseInt(value, 10);
+  if (!Number.isInteger(parsedValue) || parsedValue < 0) throw new InvalidParamsTypeError();
+  if (parsedValue !== 0 && parsedValue !== 1) throw InvalidParamsValueError();
+}
+
 export function isURL(str) {
   try {
     const url = new URL(str);

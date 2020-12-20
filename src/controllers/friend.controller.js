@@ -6,6 +6,7 @@ import {
   NotAccessError,
   NotValidatedUserError,
 } from 'common/errors';
+import Block from 'models/Block';
 import Friend from 'models/Friend';
 import User from 'models/User';
 import { Op } from 'sequelize';
@@ -240,6 +241,16 @@ export default {
 
     const { user_id: requesteeId } = req.query;
     if (String(userId) === String(requesteeId)) throw new InvalidMethodError();
+    const block = await Block.findOne({
+      where: {
+        [Op.or]: [
+          { blocker_id: userId, blockee_id: requesteeId },
+          { blocker_id: userId, blockee_id: requesteeId },
+        ],
+      },
+    });
+
+    if (block) throw new NotValidatedUserError();
 
     const userRelations = await Friend.findAll({
       where: {

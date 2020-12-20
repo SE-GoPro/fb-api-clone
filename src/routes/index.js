@@ -6,6 +6,7 @@ import likeRoutes from 'routes/like.route';
 import commentRoutes from 'routes/comment.route';
 import friendRoutes from 'routes/friend.route';
 import notificationRoutes from 'routes/notification.route';
+import blockRoutes from 'routes/block.route';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use(likeRoutes);
 router.use(commentRoutes);
 router.use(friendRoutes);
 router.use(notificationRoutes);
+router.use(blockRoutes);
 
 export default router;

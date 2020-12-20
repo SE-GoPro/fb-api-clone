@@ -1,5 +1,4 @@
-import { InvalidParamsValueError } from 'common/errors';
-import { checkInteger, checkRequiredFields } from 'utils/validator';
+import { checkBit, checkInteger, checkRequiredFields } from 'utils/validator';
 
 export default {
   getRequestedFriends: (req, res, next) => {
@@ -24,10 +23,7 @@ export default {
 
   setAcceptFriend: (req, res, next) => {
     checkRequiredFields(req.query, ['user_id', 'is_accept']);
-
-    checkInteger(req.query.is_accept);
-    const isAcceptValue = parseInt(req.query.is_accept, 10);
-    if (isAcceptValue !== 0 || isAcceptValue !== 1) throw new InvalidParamsValueError();
+    checkBit(req.query.is_accept);
 
     return next();
   },

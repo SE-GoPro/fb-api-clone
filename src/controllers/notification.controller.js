@@ -1,6 +1,5 @@
 import {
   AlreadyDoneActionError,
-  InvalidParamsValueError,
   NotAccessError,
   NotEnoughParamsError,
 } from 'common/errors';
@@ -49,11 +48,8 @@ export default {
       'vibrant_on',
       'led_on',
     ].forEach(key => {
-      if (req.query[key]) {
-        const keyValue = parseInt(req.query[key], 10);
-        if (keyValue !== 0 && keyValue !== 1) throw new InvalidParamsValueError();
-        settingsData[key] = keyValue !== 0;
-      }
+      const keyValue = parseInt(req.query[key], 10);
+      settingsData[key] = keyValue !== 0;
     });
 
     if (Object.keys(settingsData).length === 0) throw NotEnoughParamsError();

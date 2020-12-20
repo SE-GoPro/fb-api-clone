@@ -1,5 +1,6 @@
 import { InvalidParamsValueError, NotEnoughParamsError } from 'common/errors';
 import {
+  checkBit,
   checkInteger,
   checkRequiredFields,
 } from 'utils/validator';
@@ -27,8 +28,8 @@ export default {
 
   delSavedSearch: (req, res, next) => {
     const { search_id: searchId, all } = req.query;
+    checkBit(all);
     const isAll = parseInt(all, 10);
-    if (isAll !== 1 && isAll !== 0) throw new InvalidParamsValueError();
     if (!isAll) {
       if (!searchId) throw new NotEnoughParamsError();
     }
