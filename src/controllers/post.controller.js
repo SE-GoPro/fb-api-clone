@@ -54,7 +54,10 @@ export default {
     }
 
     await sequelize.transaction(async t => {
-      const newPost = await Post.create(postData, { transaction: t });
+      const newPost = await Post.create({
+        ...postData,
+        category_id: newVideo ? constants.Categories.VIDEO : null,
+      }, { transaction: t });
       postId = newPost.id;
       if (newImages) {
         await Image.bulkCreate(
@@ -383,5 +386,97 @@ export default {
     const countNewItems = await Post.count({ where: conditions });
 
     return handleResponse(res, { new_items: String(countNewItems) });
+  }),
+
+  getListVideos: asyncHandler(async (req, res) => {
+    const lastId = req.query.last_id ? parseInt(req.query.last_id, 10) : 0;
+    const index = parseInt(req.query.index, 10);
+    const count = parseInt(req.query.count, 10);
+    const { userId, isBlocked } = req.credentials || { userId: null, isBlocked: false };
+    if (userId && isBlocked) throw new NotAccessError();
+
+    let blockIdLists = [];
+    if (userId && !isBlocked) {
+      const blockLists = await Block.findAll({
+        where: {
+          [Op.or]: [
+            { blocker_id: userId },
+            { blockee_id: userId },
+          ],
+        },
+        attributes: ['blocker_id', 'blockee_id'],
+      });
+      blockIdLists = (blockLists || []).map(({
+        blocker_id: blockerId, blockee_id: blockeeId,
+      }) => (blockerId === userId ? blockeeId : blockerId));
+    }
+
+    const getPostConditions = {
+      user_id: { [Op.notIn]: blockIdLists },
+      category_id: constants.Categories.VIDEO,
+    };
+    if (lastId !== 0) Object.assign(getPostConditions, { id: { [Op.lte]: lastId } });
+
+    const posts = await Post.findAll({
+      where: getPostConditions,
+      limit: count,
+      offset: index,
+      include: {
+        model: User,
+        attributes: ['id', 'name', 'avatar_url'],
+        required: false,
+      },
+      order: [['created', 'desc']],
+    });
+
+    if (posts.length === 0) throw new NoDataError();
+
+    const postIds = posts.map(({ id }) => id);
+    const newPostsCount = lastId ? await Post.count({
+      where: {
+        id: { [Op.gt]: lastId },
+        category_id: constants.Categories.VIDEO,
+      },
+    }) : 0;
+
+    const [videos, likes, comments] = await Promise.all([
+      Video.findAll({ where: { post_id: { [Op.in]: postIds } } }),
+      Like.findAll({ where: { post_id: { [Op.in]: postIds } } }),
+      Comment.findAll({ where: { post_id: { [Op.in]: postIds } } }),
+    ]);
+
+    return handleResponse(res, {
+      post: posts.map(post => {
+        const publicPost = !userId;
+        const postVideo = videos.find(video => video.post_id === post.id);
+        const postLikes = likes.filter(like => like.post_id === post.id);
+        const postComments = comments.filter(comment => comment.post_id === post.id);
+        const userLikes = userId ? postLikes.filter(like => like.user_id === userId) : null;
+        const postCanComment = post.can_comment ? '1' : '0';
+        const postCanEdit = !publicPost && post.user_id === userId ? '1' : '0';
+
+        return {
+          id: post.id,
+          video: { url: postVideo.url, thumb: postVideo.thumb },
+          described: post.described,
+          created: getUNIXSeconds(post.created),
+          like: String(postLikes.length),
+          comment: String(postComments.length),
+          is_liked: userLikes ? String(userLikes.length) : null,
+          // is_blocked: ,
+          can_comment: publicPost ? null : postCanComment,
+          can_edit: postCanEdit,
+          banned: post.banned ? '1' : '0',
+          status: post.status,
+          author: {
+            id: post.User.id,
+            username: post.User.name,
+            avatar: post.User.avatar_url,
+          },
+        };
+      }),
+      new_items: String(newPostsCount),
+      last_id: String(lastId || posts[0].id),
+    });
   }),
 };

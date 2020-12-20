@@ -67,4 +67,11 @@ router.post(
   postController.checkNewItem,
 );
 
+router.post(
+  '/get_list_videos',
+  postValidation.getListVideos,
+  verifyOptionalToken,
+  postController.getListVideos,
+);
+
 export default router;

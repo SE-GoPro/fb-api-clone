@@ -47,6 +47,12 @@ const ValidMimeTypes = [
   'video/mp4',
 ];
 
+const Categories = {
+  GROUP: 1,
+  VIDEO: 2,
+  MARKETPLACE: 3,
+};
+
 export default {
   MIN_RE_VERIFYING_TIME,
   HASH_TAG_MARK,
@@ -57,4 +63,5 @@ export default {
   MAX_VIDEO_NUMBER,
   ResponseCodes,
   ValidMimeTypes,
+  Categories,
 };

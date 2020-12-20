@@ -43,4 +43,15 @@ export default {
     }
     return next();
   },
+
+  getListVideos: (req, res, next) => {
+    checkRequiredFields(req.query, ['index', 'count']);
+
+    const { index, count } = req.query;
+    checkInteger(index);
+    checkInteger(count);
+    if (req.query.last_id) checkInteger(req.query.last_id);
+
+    return next();
+  },
 };
