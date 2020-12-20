@@ -1,4 +1,9 @@
-import { NoDataError, NotAccessError } from 'common/errors';
+import {
+  AlreadyDoneActionError,
+  NoDataError,
+  NotAccessError,
+  NotValidatedUserError,
+} from 'common/errors';
 import Friend from 'models/Friend';
 import User from 'models/User';
 import { Op } from 'sequelize';
@@ -24,6 +29,17 @@ function formatRequest(request, requesters, mutualFriendsCount) {
     avatar: requester.avatar_url,
     same_friends: String(mutualFriendsCount),
     created: getUNIXSeconds(request.created),
+  };
+}
+
+function formatRelation(friendId, rela, friendsInfo, mutualFriendsCount) {
+  const friendInfo = friendsInfo.find(friend => friendId === friend.id);
+  return {
+    id: rela.id,
+    username: friendInfo.name,
+    avatar: friendInfo.avatar_url,
+    same_friends: String(mutualFriendsCount),
+    created: getUNIXSeconds(rela.accepted),
   };
 }
 
@@ -82,5 +98,137 @@ export default {
       request,
       total: String(total),
     });
+  }),
+
+  getUserFriends: asyncHandler(async (req, res) => {
+    const { userId, isBlocked } = req.credentials;
+    if (isBlocked) throw new NotAccessError();
+
+    const index = parseInt(req.query.index, 10);
+    const count = parseInt(req.query.count, 10);
+
+    const userFriends = await Friend.findAll({
+      where: {
+        [Op.and]: [
+          { [Op.or]: [{ requestee_id: userId }, { requester_id: userId }] },
+          { status: 'accepted' },
+        ],
+      },
+      attributes: ['id', 'requester_id', 'requestee_id', 'accepted'],
+      order: [['accepted', 'desc']],
+    });
+
+    const total = userFriends.length;
+    if (total === 0) throw new NoDataError();
+
+    const userFriendIds = getFriendIds(userId, userFriends);
+    const paginatedList = userFriends.slice(index, count);
+    const listedFriendIds = paginatedList
+      .map(rela => (rela.requester_id === userId ? rela.requestee_id : rela.requester_id));
+
+    const friendRelations = await Friend.findAll({
+      where: {
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { requester_id: { [Op.in]: listedFriendIds } },
+              { requestee_id: { [Op.in]: listedFriendIds } },
+            ],
+          },
+          { status: 'accepted' },
+        ],
+      },
+      attributes: ['requester_id', 'requestee_id'],
+    });
+
+    const friendsInfo = await User.findAll({
+      where: { id: { [Op.in]: listedFriendIds } },
+      attributes: ['id', 'name', 'avatar_url'],
+    });
+
+    const friends = paginatedList.map(rela => {
+      const friendId = rela.requester_id === userId ? rela.requestee_id : rela.requester_id;
+      const friendRelationIds = getFriendIds(friendId, friendRelations);
+      const mutualFriendsCount = countMutualFriends(userFriendIds, friendRelationIds);
+      return formatRelation(friendId, rela, friendsInfo, mutualFriendsCount);
+    });
+
+    return handleResponse(res, {
+      friends,
+      total: String(total),
+    });
+  }),
+
+  setAcceptFriend: asyncHandler(async (req, res) => {
+    const { userId, isBlocked } = req.credentials;
+    if (isBlocked) throw new NotAccessError();
+
+    const friendId = req.query.user_id;
+    const isAccept = parseInt(req.query.is_accept, 10) === 1;
+    const status = isAccept ? 'accepted' : 'denied';
+
+    const friendInfo = await User.findOne({ where: { id: friendId } });
+    if (!friendInfo || friendInfo.is_blocked) throw new NotValidatedUserError();
+
+    const request = await Friend.findOne({
+      where: { requester_id: friendId, requestee_id: userId, status: 'pending' },
+    });
+    if (request) {
+      if (request.status === 'pending') {
+        await Friend.update({
+          status, accepted: isAccept ? Date.now() : null,
+        }, {
+          where: { id: request.id },
+        });
+      } else throw new AlreadyDoneActionError();
+    } else {
+      await Friend.create({
+        requester_id: friendId,
+        requestee_id: userId,
+        status,
+        accepted: isAccept ? Date.now() : null,
+      });
+    }
+
+    return handleResponse(res);
+  }),
+
+  getListSuggestedFriends: asyncHandler(async (req, res) => {
+    const { userId, isBlocked } = req.credentials;
+    if (isBlocked) throw new NotAccessError();
+
+    const index = parseInt(req.query.index, 10);
+    const count = parseInt(req.query.count, 10);
+
+    const suggestedFriends = await Friend.getSuggestedFriends(userId, index, count);
+    if (suggestedFriends.length === 0) throw new NoDataError();
+    const userIds = [userId, ...suggestedFriends.map(info => info.user_id)];
+
+    const friends = await Friend.findAll({
+      where: {
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { requester_id: { [Op.in]: userIds } },
+              { requestee_id: { [Op.in]: userIds } },
+            ],
+          },
+          { status: 'accepted' },
+        ],
+      },
+      attributes: ['requester_id', 'requestee_id'],
+    });
+
+    const userFriendIds = getFriendIds(userId, friends);
+    const listUsers = suggestedFriends.map(user => {
+      const friendIds = getFriendIds(user.user_id, friends);
+      const mutualFriendsCount = countMutualFriends(userFriendIds, friendIds);
+      return {
+        ...user,
+        same_friends: String(mutualFriendsCount),
+      };
+    });
+
+    return handleResponse(res, { list_users: listUsers });
   }),
 };

@@ -43,6 +43,10 @@ export function up(queryInterface, Sequelize) {
       allowNull: false,
       defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
     },
+    accepted: {
+      type: Sequelize.DATE,
+      allowNull: true,
+    },
   });
 }
 export function down(queryInterface) {

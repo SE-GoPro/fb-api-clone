@@ -12,4 +12,25 @@ router.post(
   friendController.getRequestedFriends,
 );
 
+router.post(
+  '/get_user_friends',
+  friendValidation.getUserFriends,
+  verifyToken,
+  friendController.getUserFriends,
+);
+
+router.post(
+  '/set_accept_friend',
+  friendValidation.setAcceptFriend,
+  verifyToken,
+  friendController.setAcceptFriend,
+);
+
+router.post(
+  '/get_list_suggested_friends',
+  friendValidation.getListSuggestedFriends,
+  verifyToken,
+  friendController.getListSuggestedFriends,
+);
+
 export default router;
