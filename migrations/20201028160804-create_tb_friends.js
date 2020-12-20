@@ -29,8 +29,14 @@ export function up(queryInterface, Sequelize) {
       allowNull: false,
     },
     status: {
-      type: Sequelize.STRING,
+      type: Sequelize.ENUM,
       allowNull: false,
+      values: [
+        'accepted',
+        'pending',
+        'denied',
+      ],
+      defaultValue: 'pending',
     },
     created: {
       type: Sequelize.DATE,

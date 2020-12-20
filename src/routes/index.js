@@ -4,6 +4,7 @@ import postRoutes from 'routes/post.route';
 import searchRoutes from 'routes/search.route';
 import likeRoutes from 'routes/like.route';
 import commentRoutes from 'routes/comment.route';
+import friendRoutes from 'routes/friend.route';
 
 const router = Router();
 
@@ -12,5 +13,6 @@ router.use(postRoutes);
 router.use(searchRoutes);
 router.use(likeRoutes);
 router.use(commentRoutes);
+router.use(friendRoutes);
 
 export default router;

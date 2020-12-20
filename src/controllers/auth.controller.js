@@ -88,7 +88,7 @@ export default {
     if (!user) throw new NotValidatedUserError();
     if (verifyCode !== user.verify_code) throw new InvalidParamsValueError();
     if (user.is_verified) throw new ExistedUserError();
-    const token = signToken({ user_id: user.id, isBlocked: user.is_blocked });
+    const token = signToken({ userId: user.id, isBlocked: user.is_blocked });
 
     await sequelize.transaction(async t => {
       await User.update({ is_verified: true }, { where: { id: user.id }, transaction: t });
