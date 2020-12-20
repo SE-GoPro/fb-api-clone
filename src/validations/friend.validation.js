@@ -41,4 +41,10 @@ export default {
 
     return next();
   },
+
+  setRequestFriend: (req, res, next) => {
+    checkRequiredFields(req.query, ['user_id']);
+
+    return next();
+  },
 };

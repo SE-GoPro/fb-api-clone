@@ -5,6 +5,7 @@ const MAX_KEY_WORD_COUNT = 20;
 const MAX_CHANGE_USERNAME_FAIL_COUNT = 10;
 const MAX_IMAGE_NUMBER = 4;
 const MAX_VIDEO_NUMBER = 1;
+const MAX_FRIENDS = 500;
 
 const ResponseCodes = {
   // Server common codes
@@ -61,6 +62,7 @@ export default {
   MAX_CHANGE_USERNAME_FAIL_COUNT,
   MAX_IMAGE_NUMBER,
   MAX_VIDEO_NUMBER,
+  MAX_FRIENDS,
   ResponseCodes,
   ValidMimeTypes,
   Categories,

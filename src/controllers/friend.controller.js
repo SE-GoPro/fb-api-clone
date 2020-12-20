@@ -1,5 +1,7 @@
+import constants from 'common/constants';
 import {
   AlreadyDoneActionError,
+  InvalidMethodError,
   NoDataError,
   NotAccessError,
   NotValidatedUserError,
@@ -230,5 +232,43 @@ export default {
     });
 
     return handleResponse(res, { list_users: listUsers });
+  }),
+
+  setRequestFriend: asyncHandler(async (req, res) => {
+    const { userId, isBlocked } = req.credentials;
+    if (isBlocked) throw new NotAccessError();
+
+    const { user_id: requesteeId } = req.query;
+    if (String(userId) === String(requesteeId)) throw new InvalidMethodError();
+
+    const userRelations = await Friend.findAll({
+      where: {
+        [Op.or]: [
+          { requester_id: userId },
+          { requestee_id: userId },
+        ],
+      },
+    });
+
+    const userFriendsCount = userRelations.filter(rela => rela.status === 'accepted').length;
+    if (userFriendsCount === constants.MAX_FRIENDS) throw new NoDataError();
+
+    const userRequests = userRelations.filter(rela => rela.requester_id === userId);
+
+    const oldRequest = userRequests.find(rela => rela.requestee_id === requesteeId);
+    let totalPendingRequests = userRequests.filter(rela => rela.status === 'pending').length;
+    if (oldRequest) {
+      if (oldRequest.status === 'pending') {
+        await Friend.update({ status: 'undo' }, { where: { id: oldRequest.id } });
+        totalPendingRequests -= 1;
+      } else if (oldRequest.status === 'undo') {
+        await Friend.update({ status: 'pending', created: Date.now() }, { where: { id: oldRequest.id } });
+        totalPendingRequests += 1;
+      } else throw new NoDataError();
+    } else {
+      await Friend.create({ requester_id: userId, requestee_id: requesteeId });
+      totalPendingRequests += 1;
+    }
+    return handleResponse(res, { requested_friends: String(totalPendingRequests) });
   }),
 };

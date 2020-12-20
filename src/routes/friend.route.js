@@ -33,4 +33,11 @@ router.post(
   friendController.getListSuggestedFriends,
 );
 
+router.post(
+  '/set_request_friend',
+  friendValidation.setRequestFriend,
+  verifyToken,
+  friendController.setRequestFriend,
+);
+
 export default router;

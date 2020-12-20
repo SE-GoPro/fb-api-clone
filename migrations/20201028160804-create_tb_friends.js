@@ -35,6 +35,7 @@ export function up(queryInterface, Sequelize) {
         'accepted',
         'pending',
         'denied',
+        'undo',
       ],
       defaultValue: 'pending',
     },
