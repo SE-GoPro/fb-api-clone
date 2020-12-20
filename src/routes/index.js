@@ -5,6 +5,7 @@ import searchRoutes from 'routes/search.route';
 import likeRoutes from 'routes/like.route';
 import commentRoutes from 'routes/comment.route';
 import friendRoutes from 'routes/friend.route';
+import notificationRoutes from 'routes/notification.route';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.use(searchRoutes);
 router.use(likeRoutes);
 router.use(commentRoutes);
 router.use(friendRoutes);
+router.use(notificationRoutes);
 
 export default router;

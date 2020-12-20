@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 import sequelize from 'utils/sequelize';
 
 const NotificationSetting = sequelize.define('NotificationSetting', {
+  user_id: DataTypes.BIGINT,
   like_comment: DataTypes.BOOLEAN,
   from_friends: DataTypes.BOOLEAN,
   requested_friend: DataTypes.BOOLEAN,
@@ -17,5 +18,7 @@ const NotificationSetting = sequelize.define('NotificationSetting', {
   tableName: 'notification_settings',
   timestamps: false,
 });
+
+NotificationSetting.removeAttribute('id');
 
 export default NotificationSetting;

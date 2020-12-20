@@ -1,9 +1,15 @@
 export function up(queryInterface, Sequelize) {
   return queryInterface.createTable('notification_settings', {
-    id: {
+    user_id: {
       type: Sequelize.BIGINT,
       allowNull: false,
-      autoIncrement: true,
+      references: {
+        model: {
+          tableName: 'users',
+        },
+        key: 'id',
+      },
+      onDelete: 'CASCADE',
       primaryKey: true,
     },
     like_comment: {
