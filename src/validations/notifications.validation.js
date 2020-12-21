@@ -1,4 +1,4 @@
-import { checkBit } from 'utils/validator';
+import { checkBit, checkInteger, checkRequiredFields } from 'utils/validator';
 
 export default {
   setPushSettings: (req, res, next) => {
@@ -20,6 +20,19 @@ export default {
       }
     });
 
+    return next();
+  },
+
+  getNotification: (req, res, next) => {
+    checkRequiredFields(req.query, ['index', 'count']);
+    checkInteger(req.query.index);
+    checkInteger(req.query.count);
+
+    return next();
+  },
+
+  setReadNotification: (req, res, next) => {
+    checkRequiredFields(req.query, ['notification_id']);
     return next();
   },
 };
